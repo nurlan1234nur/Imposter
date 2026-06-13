@@ -1,0 +1,8 @@
+services:
+  imposter:
+    image: nurlannn/imposter:latest
+    container_name: imposter
+    restart: unless-stopped
+    ports:
+      # Host port comes from .env (PORT), defaults to 8090. Container always listens on 80.
+      - "${PORT:-8090}:80"
