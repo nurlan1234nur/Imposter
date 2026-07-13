@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 
 export const GAME_CATALOG = [
+  { id: 'offline-imposter', icon: '📱', name: 'Imposter Offline', players: '3–12', time: '10–30 мин', difficulty: 'Хялбар', from: '#172554', to: '#312e81', color: '#818cf8', description: 'Нэг утсаа дамжуулж, хүн бүр нууц үг эсвэл Imposter дүрээ хараад нүүр нүүрээ харж тоглоно.', offline: true },
   { id: 'imposter', icon: '👾', name: 'Imposter', players: '3–12', time: '15–30 мин', difficulty: 'Хялбар', from: '#1e1b4b', to: '#3730a3', color: '#6366f1', description: 'Нууц үгээр imposter-ийг ол — эсвэл баригдалгүй үлд.' },
   { id: 'mafia', icon: '🎭', name: 'Мафиа', players: '5–12', time: '20–40 мин', difficulty: 'Дунд', from: '#450a0a', to: '#7f1d1d', color: '#ef4444', description: 'Шөнийн нууц дүрүүд, өдрийн сэжиг ба санал хураалт.' },
   { id: 'avalon', icon: '⚔️', name: 'Avalon', players: '5–10', time: '30–60 мин', difficulty: 'Хэцүү', from: '#0c2340', to: '#0369a1', color: '#0ea5e9', description: 'Артурын шүүх дэх сайн ба муугийн нууц тулаан.' },
@@ -45,13 +46,14 @@ const TEXT = {
 const tFor = (lang) => ({ ...TEXT.en, ...(TEXT[lang] || {}) })
 const nameOf = (room, id) => room.players.find((player) => player.id === id)?.name || '—'
 
-export function GameCatalog({ lang, selected, onSelect, compact = false }) {
+export function GameCatalog({ lang, selected, onSelect, compact = false, onlineOnly = false }) {
   const t = tFor(lang)
+  const games = onlineOnly ? GAME_CATALOG.filter((game) => !game.offline) : GAME_CATALOG
   return (
     <section className={`game-catalog ${compact ? 'compact' : ''}`}>
       {!compact && <h2>{t.chooseGame}</h2>}
       <div className="game-card-grid">
-        {GAME_CATALOG.map((game) => (
+        {games.map((game) => (
           <button
             key={game.id}
             className={`game-card ${selected === game.id ? 'active' : ''}`}
@@ -61,6 +63,7 @@ export function GameCatalog({ lang, selected, onSelect, compact = false }) {
             <span className="game-card-main">
               <span className="game-icon">{game.icon}</span>
               <span className="game-card-copy"><strong>{game.name}</strong><span className="game-description">{game.description}</span></span>
+              {game.offline && <span className="offline-badge">OFFLINE</span>}
             </span>
             <span className="game-card-meta"><small>👥 {game.players}</small><small>⏱ {game.time}</small><small className={`difficulty ${game.difficulty}`}>{game.difficulty}</small></span>
           </button>

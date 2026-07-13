@@ -1163,6 +1163,7 @@ h1, h2, h3, .logo, .room-code, .card-word, .starter-name, .stepper-value { font-
 
 /* Local pass-the-phone flow keeps its behavior, adopts the same shell. */
 .brand { margin-top: 4px; }
+.local-mode-badge { display: inline-flex; align-items: center; gap: 5px; margin-bottom: 7px; padding: 5px 9px; border: 1px solid rgba(129,140,248,.4); border-radius: 999px; background: rgba(49,46,129,.28); color: #c7d2fe; font-size: .58rem; font-weight: 900; letter-spacing: .12em; }
 .logo { font-family: 'Outfit',sans-serif; background: linear-gradient(90deg,#f1f5f9,#c4b5fd); -webkit-background-clip: text; background-clip: text; color: transparent; }
 .tagline { color: #64748b; }
 .reveal-card { background: radial-gradient(circle at top,rgba(124,58,237,.2),transparent 55%),#131829; border-color: rgba(124,58,237,.28); }
@@ -1241,3 +1242,68 @@ h1, h2, h3, .logo, .room-code, .card-word, .starter-name, .stepper-value { font-
   .game-icon { width: 36px; height: 36px; flex-basis: 36px; }
   .game-catalog.compact .game-card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* Entry flow: quick join first, then game-specific creation screens. */
+.quick-join-card {
+  border-color: rgba(124, 58, 237, .3);
+  background: radial-gradient(circle at top right, rgba(124, 58, 237, .16), transparent 48%), #131829;
+}
+.quick-join-card .join-cta { background: linear-gradient(135deg, #7c3aed, #9333ea); color: #fff; border: 0; }
+.game-card-main { position: relative; width: 100%; }
+.offline-badge {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  padding: 5px 7px;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, .86);
+  border: 1px solid rgba(129, 140, 248, .45);
+  color: #c7d2fe;
+  font-size: .54rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+}
+.game-catalog.compact .offline-badge { display: none; }
+
+.game-detail-app { min-height: 100svh; }
+.game-create-screen {
+  width: 100%;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: #07090f;
+}
+.game-detail-hero {
+  min-height: 245px;
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  padding: max(18px, env(safe-area-inset-top)) 22px 28px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 78% 16%, color-mix(in srgb, var(--game-color) 38%, transparent), transparent 32%),
+    linear-gradient(155deg, var(--game-from), var(--game-to));
+}
+.game-detail-hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, rgba(255,255,255,.48) .8px, transparent 1px);
+  background-size: 27px 27px;
+  opacity: .2;
+  mask-image: linear-gradient(#000, transparent 80%);
+}
+.game-detail-back { position: absolute; z-index: 2; top: max(18px, env(safe-area-inset-top)); left: 20px; background: rgba(7,9,15,.58); color: #fff; }
+.game-detail-heading { position: relative; z-index: 2; display: flex; align-items: center; gap: 15px; }
+.game-detail-icon { width: 64px; height: 64px; display: grid; place-items: center; border-radius: 19px; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.18); font-size: 2rem; box-shadow: 0 10px 28px rgba(0,0,0,.3); }
+.game-detail-heading small { color: rgba(255,255,255,.62); font-size: .62rem; font-weight: 900; letter-spacing: .14em; }
+.game-detail-heading h1 { margin: 4px 0 0; color: #fff; font-size: 2rem; line-height: 1; }
+.game-detail-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; padding: 14px 20px; background: #0d1117; border-bottom: 1px solid rgba(255,255,255,.06); }
+.game-detail-stats span { min-width: 0; padding: 8px 4px; border-radius: 10px; background: #131829; color: #94a3b8; font-size: .66rem; font-weight: 700; text-align: center; }
+.game-detail-content { flex: 1; display: grid; align-content: start; gap: 16px; padding: 22px 20px 110px; }
+.game-detail-description { padding: 17px; border: 1px solid rgba(255,255,255,.07); border-radius: 18px; background: #131829; }
+.game-detail-description small { color: var(--game-color, #a78bfa); font-size: .62rem; font-weight: 900; letter-spacing: .13em; }
+.game-detail-description p { margin: 10px 0 0; color: #94a3b8; font-size: .84rem; line-height: 1.65; }
+.game-detail-form { margin: 0; }
+.game-detail-cta { position: fixed; z-index: 20; left: 50%; bottom: 0; width: min(430px, 100%); transform: translateX(-50%); padding: 12px 20px max(16px, env(safe-area-inset-bottom)); background: linear-gradient(transparent, rgba(7,9,15,.96) 25%); }
+.game-detail-cta .primary { width: 100%; }

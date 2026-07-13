@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { LANGS, STRINGS } from './i18n.js'
 import { WORDS, nextWordIndex } from './words.js'
-import { ExtendedOnlineGame, GameCatalog, gameIcon, gameLabel } from './ExtendedOnlineGames.jsx'
+import { GAME_CATALOG, ExtendedOnlineGame, GameCatalog, gameIcon, gameLabel } from './ExtendedOnlineGames.jsx'
 
 const MIN_PLAYERS = 3
 const MAX_PLAYERS = 12
@@ -251,7 +251,7 @@ function onlineText(lang) {
 }
 
 export default function App() {
-  const [mode, setMode] = useState('local')
+  const [mode, setMode] = useState('online')
   const [lang, setLang] = useState('mn')
   const [screen, setScreen] = useState('setup') // setup | reveal | start | result
   const [playerCount, setPlayerCount] = useState(4)
@@ -264,7 +264,18 @@ export default function App() {
   const [revealIndex, setRevealIndex] = useState(0)
 
   const t = STRINGS[lang]
-  if (mode === 'online') return <OnlineRoom lang={lang} setLang={setLang} onBack={() => setMode('local')} />
+  if (mode === 'online') {
+    return (
+      <OnlineRoom
+        lang={lang}
+        setLang={setLang}
+        onOffline={() => {
+          setScreen('setup')
+          setMode('local')
+        }}
+      />
+    )
+  }
 
   function setCount(n) {
     const c = Math.max(MIN_PLAYERS, Math.min(MAX_PLAYERS, n))
@@ -415,6 +426,7 @@ function Setup({ t, ot, lang, setLang, playerCount, setCount, imposterCount, set
   return (
     <div className="screen setup">
       <header className="brand">
+        <span className="local-mode-badge">📱 OFFLINE</span>
         <h1 className="logo">{t.title}</h1>
         <p className="tagline">{t.subtitle}</p>
       </header>
@@ -662,7 +674,7 @@ async function api(path, payload) {
   return data
 }
 
-function OnlineRoom({ lang, setLang, onBack }) {
+function OnlineRoom({ lang, setLang, onOffline }) {
   const ot = onlineText(lang)
   const [name, setName] = useState(localStorage.getItem('imposter-name') || '')
   const [joinCode, setJoinCode] = useState('')
@@ -728,12 +740,64 @@ function OnlineRoom({ lang, setLang, onBack }) {
     return true
   }
 
+  function selectLobbyGame(gameType) {
+    if (gameType === 'offline-imposter') {
+      onOffline()
+      return
+    }
+    setSelectedGame(gameType)
+    setError('')
+  }
+
+  const selectedGameInfo = GAME_CATALOG.find((game) => game.id === selectedGame)
+
   if (!room) {
+    if (selectedGameInfo) {
+      return (
+        <div className="app online-app game-detail-app">
+          <div className="game-create-screen">
+            <section
+              className="game-detail-hero"
+              style={{ '--game-from': selectedGameInfo.from, '--game-to': selectedGameInfo.to, '--game-color': selectedGameInfo.color }}
+            >
+              <button className="icon-back game-detail-back" onClick={() => setSelectedGame('')}>←</button>
+              <div className="game-detail-heading">
+                <span className="game-detail-icon">{selectedGameInfo.icon}</span>
+                <div><small>{lang === 'mn' ? 'ОНЛАЙН ТОГЛООМ' : 'ONLINE GAME'}</small><h1>{selectedGameInfo.name}</h1></div>
+              </div>
+            </section>
+            <div className="game-detail-stats">
+              <span>👥 {selectedGameInfo.players}</span>
+              <span>⏱ {selectedGameInfo.time}</span>
+              <span>◆ {selectedGameInfo.difficulty}</span>
+            </div>
+            <main className="game-detail-content">
+              <section className="game-detail-description">
+                <small>{lang === 'mn' ? 'ТОГЛООМЫН ТУХАЙ' : 'ABOUT THIS GAME'}</small>
+                <p>{selectedGameInfo.description}</p>
+              </section>
+              <section className="lobby-action-card game-detail-form">
+                <div className="action-card-title"><span>🏠</span><div><strong>{ot.createRoom}</strong><small>{lang === 'mn' ? 'Нэрээ оруулаад шинэ өрөө нээнэ үү' : 'Enter your name to open a new room'}</small></div></div>
+                <label className="field">
+                  <span className="field-label">{ot.yourName}</span>
+                  <input value={name} maxLength={24} placeholder={ot.playerName} onChange={(e) => setName(e.target.value)} />
+                </label>
+              </section>
+              {error && <p className="error">{error}</p>}
+            </main>
+            <div className="game-detail-cta">
+              <button className="primary big" onClick={() => void createRoom()}>{selectedGameInfo.icon} {ot.createRoom}</button>
+            </div>
+          </div>
+        </div>
+      )
+    }
+
     return (
       <div className="app online-app online-lobby">
         <div className="screen setup lobby-screen">
           <header className="lobby-topbar">
-            <button className="icon-back" onClick={onBack}>←</button>
+            <span className="topbar-spacer" />
             <div className="lobby-brand"><span>🌙</span><strong>{ot.onlineRoom}</strong></div>
             <span className="topbar-spacer" />
           </header>
@@ -754,18 +818,12 @@ function OnlineRoom({ lang, setLang, onBack }) {
               </button>
             ))}
           </div>
-          <GameCatalog lang={lang} selected={selectedGame} onSelect={setSelectedGame} />
-          <section className="lobby-action-card create-room-card">
-            <div className="action-card-title"><span>🏠</span><div><strong>{ot.createRoom}</strong><small>{selectedGame ? gameLabel(selectedGame) : (lang === 'mn' ? 'Дээрээс тоглоомоо сонгоно уу' : 'Choose a game above')}</small></div></div>
+          <section className="lobby-action-card join-room-card quick-join-card">
+            <div className="action-card-title"><span>🔑</span><div><strong>{ot.joinRoom}</strong><small>{lang === 'mn' ? 'Найзаас авсан 6 тэмдэгтийн код' : 'Enter the 6-character room code'}</small></div></div>
             <label className="field">
               <span className="field-label">{ot.yourName}</span>
               <input value={name} maxLength={24} placeholder={ot.playerName} onChange={(e) => setName(e.target.value)} />
             </label>
-            <button className="primary big" disabled={!selectedGame} onClick={() => void createRoom()}>{selectedGame ? `${gameIcon(selectedGame)} ${gameLabel(selectedGame)} · ${ot.createRoom}` : ot.createRoom}</button>
-          </section>
-          <div className="lobby-divider"><span>{lang === 'mn' ? 'эсвэл' : 'or'}</span></div>
-          <section className="lobby-action-card join-room-card">
-            <div className="action-card-title"><span>🔑</span><div><strong>{ot.joinRoom}</strong><small>{lang === 'mn' ? 'Найзаас авсан 6 тэмдэгтийн код' : 'Enter the 6-character room code'}</small></div></div>
             <label className="field code-field">
               <span className="field-label">{ot.roomCode}</span>
               <input value={joinCode} maxLength={6} placeholder="ABC123" onChange={(e) => setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} />
@@ -773,6 +831,7 @@ function OnlineRoom({ lang, setLang, onBack }) {
             <button className="ghost join-cta" disabled={!joinCode.trim()} onClick={() => void joinRoom()}>🔑 {ot.joinRoom}</button>
           </section>
           {error && <p className="error">{error}</p>}
+          <GameCatalog lang={lang} selected="" onSelect={selectLobbyGame} />
         </div>
       </div>
     )
@@ -796,7 +855,7 @@ function OnlineRoom({ lang, setLang, onBack }) {
           ))}
         </div>
         <div className="active-game-bar"><span className="game-icon small">{gameIcon(room.gameType)}</span><strong>{gameLabel(room.gameType)}</strong>{isHost && <button className="mini-btn" disabled={!canSwitchGame()} onClick={() => setShowGamePicker((value) => !value)}>{showGamePicker ? (lang === 'mn' ? 'Болих' : 'Cancel') : (lang === 'mn' ? 'Тоглоом солих' : 'Change game')}</button>}</div>
-        {isHost && showGamePicker && <div className="room-game-picker"><GameCatalog compact lang={lang} selected={room.gameType} onSelect={(gameType) => { void action({ type: 'selectGame', gameType }); setShowGamePicker(false) }} /></div>}
+        {isHost && showGamePicker && <div className="room-game-picker"><GameCatalog compact onlineOnly lang={lang} selected={room.gameType} onSelect={(gameType) => { void action({ type: 'selectGame', gameType }); setShowGamePicker(false) }} /></div>}
         {room.gameType === 'imposter' && <OnlineImposter room={room} playerId={playerId} lang={lang} action={action} ot={ot} />}
         {room.gameType === 'mafia' && <OnlineMafia room={room} playerId={playerId} action={action} ot={ot} />}
         {room.gameType === 'number' && <OnlineNumber room={room} playerId={playerId} action={action} ot={ot} />}
