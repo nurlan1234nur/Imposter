@@ -1,0 +1,10 @@
+{
+  "description": "Engage in thrilling social deduction games with friends, creating or joining private rooms easily on mobile, while exploring popular titles and game rules.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

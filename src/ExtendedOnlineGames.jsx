@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useState } from 'react'
 
 export const GAME_CATALOG = [
-  { id: 'imposter', icon: '◉', name: 'Imposter', players: '3–12', kind: 'words' },
-  { id: 'mafia', icon: '☾', name: 'Мафиа', players: '5–12', kind: 'social' },
-  { id: 'avalon', icon: '♜', name: 'Avalon', players: '5–10', kind: 'social' },
-  { id: 'hitler', icon: '▣', name: 'Secret Hitler', players: '5–10', kind: 'politics' },
-  { id: 'wink', icon: '◔', name: 'Wink Murder', players: '6+', kind: 'quick' },
-  { id: 'twoRooms', icon: '⇄', name: 'Two Rooms', players: '10+', kind: 'large' },
-  { id: 'bang', icon: '✦', name: 'Bang!', players: '4–7', kind: 'cards' },
-  { id: 'planes', icon: '✈', name: 'Онгоц', players: '2+', kind: 'strategy' },
-  { id: 'number', icon: '#', name: 'Тоо олох', players: '2+', kind: 'logic' },
+  { id: 'imposter', icon: '👾', name: 'Imposter', players: '3–12', time: '15–30 мин', difficulty: 'Хялбар', from: '#1e1b4b', to: '#3730a3', color: '#6366f1', description: 'Нууц үгээр imposter-ийг ол — эсвэл баригдалгүй үлд.' },
+  { id: 'mafia', icon: '🎭', name: 'Мафиа', players: '5–12', time: '20–40 мин', difficulty: 'Дунд', from: '#450a0a', to: '#7f1d1d', color: '#ef4444', description: 'Шөнийн нууц дүрүүд, өдрийн сэжиг ба санал хураалт.' },
+  { id: 'avalon', icon: '⚔️', name: 'Avalon', players: '5–10', time: '30–60 мин', difficulty: 'Хэцүү', from: '#0c2340', to: '#0369a1', color: '#0ea5e9', description: 'Артурын шүүх дэх сайн ба муугийн нууц тулаан.' },
+  { id: 'hitler', icon: '🗳️', name: 'Secret Hitler', players: '5–10', time: '30–60 мин', difficulty: 'Хэцүү', from: '#1a0533', to: '#4c1d95', color: '#7c3aed', description: 'Сонгууль, бодлого, улс төрийн нуугдмал тулаан.' },
+  { id: 'wink', icon: '👁️', name: 'Wink Murder', players: '6+', time: '10–20 мин', difficulty: 'Хялбар', from: '#022c22', to: '#065f46', color: '#10b981', description: 'Нууц алуурчныг гурван таалтаас өмнө илрүүл.' },
+  { id: 'twoRooms', icon: '💣', name: 'Two Rooms', players: '10+', time: '15–30 мин', difficulty: 'Дунд', from: '#292100', to: '#78350f', color: '#f59e0b', description: 'Хоёр өрөө, барьцааны солилцоо, нэг нууц бөмбөг.' },
+  { id: 'bang', icon: '🤠', name: 'Bang!', players: '4–7', time: '30–60 мин', difficulty: 'Дунд', from: '#2c0f00', to: '#7c2d12', color: '#f97316', description: 'Зэрлэг барууны нууц дүртэй картын буудалцаан.' },
+  { id: 'planes', icon: '✈️', name: 'Онгоц', players: '2+', time: '15–30 мин', difficulty: 'Дунд', from: '#082f49', to: '#155e75', color: '#06b6d4', description: 'Онгоцоо байрлуулж, өрсөлдөгчийн толгойг олж бууд.' },
+  { id: 'number', icon: '🔢', name: 'Тоо олох', players: '2+', time: '10–20 мин', difficulty: 'Хялбар', from: '#052e16', to: '#166534', color: '#22c55e', description: 'Нууц дөрвөн оронтой тоог логикоор түрүүлж ол.' },
 ]
 
 const TEXT = {
@@ -52,9 +52,17 @@ export function GameCatalog({ lang, selected, onSelect, compact = false }) {
       {!compact && <h2>{t.chooseGame}</h2>}
       <div className="game-card-grid">
         {GAME_CATALOG.map((game) => (
-          <button key={game.id} className={`game-card ${selected === game.id ? 'active' : ''}`} onClick={() => onSelect(game.id)}>
-            <span className={`game-icon kind-${game.kind}`}>{game.icon}</span>
-            <span className="game-card-copy"><strong>{game.name}</strong><small>{game.players} хүн</small></span>
+          <button
+            key={game.id}
+            className={`game-card ${selected === game.id ? 'active' : ''}`}
+            style={{ '--game-from': game.from, '--game-to': game.to, '--game-color': game.color }}
+            onClick={() => onSelect(game.id)}
+          >
+            <span className="game-card-main">
+              <span className="game-icon">{game.icon}</span>
+              <span className="game-card-copy"><strong>{game.name}</strong><span className="game-description">{game.description}</span></span>
+            </span>
+            <span className="game-card-meta"><small>👥 {game.players}</small><small>⏱ {game.time}</small><small className={`difficulty ${game.difficulty}`}>{game.difficulty}</small></span>
           </button>
         ))}
       </div>
@@ -184,4 +192,8 @@ export function ExtendedOnlineGame({ room, playerId, action, lang }) {
 
 export function gameLabel(gameType) {
   return GAME_CATALOG.find((game) => game.id === gameType)?.name || gameType
+}
+
+export function gameIcon(gameType) {
+  return GAME_CATALOG.find((game) => game.id === gameType)?.icon || '🎲'
 }
