@@ -969,6 +969,7 @@ function OnlineMafia({ room, playerId, action, ot }) {
   const [dayMinutes, setDayMinutes] = useState(5)
   const [targetId, setTargetId] = useState('')
   const [clock, setClock] = useState(Date.now())
+  const [serverClockOffset, setServerClockOffset] = useState(0)
   const state = room.state || {}
   const isHost = room.hostId === playerId
   const aliveIds = state.aliveIds || []
@@ -980,13 +981,16 @@ function OnlineMafia({ room, playerId, action, ot }) {
 
   useEffect(() => { setTargetId('') }, [state.status, state.nightNumber])
   useEffect(() => {
+    if (room.serverNow) setServerClockOffset(room.serverNow - Date.now())
+  }, [room.serverNow])
+  useEffect(() => {
     if (!state.phaseEndsAt) return undefined
     setClock(Date.now())
     const timer = window.setInterval(() => setClock(Date.now()), 1000)
     return () => window.clearInterval(timer)
   }, [state.phaseEndsAt])
 
-  const secondsLeft = Math.max(0, Math.ceil(((state.phaseEndsAt || clock) - clock) / 1000))
+  const secondsLeft = Math.max(0, Math.ceil(((state.phaseEndsAt || clock) - (clock + serverClockOffset)) / 1000))
   const timeLeft = `${String(Math.floor(secondsLeft / 60)).padStart(2, '0')}:${String(secondsLeft % 60).padStart(2, '0')}`
 
   if (state.status === 'setup') {

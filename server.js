@@ -51,6 +51,7 @@ async function body(req) {
 function baseRoom(room, viewerId) {
   return {
     code: room.code,
+    serverNow: Date.now(),
     hostId: room.hostId,
     gameType: room.gameType,
     players: room.players,
