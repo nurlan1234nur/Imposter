@@ -1,9 +1,11 @@
 import { createServer } from 'node:http'
 import { createReadStream, existsSync } from 'node:fs'
 import { extname, join, normalize } from 'node:path'
+import { applyExtendedAction, canSwitchExtended, initialExtendedState, isExtendedGame, publicExtendedState } from './server-games.js'
 
 const PORT = Number(process.argv[2] || process.env.PORT || 80)
 const PUBLIC_DIR = join(process.cwd(), 'dist')
+const CORS_ORIGIN = process.env.CORS_ORIGIN || '*'
 const rooms = new Map()
 
 const mime = {
@@ -32,6 +34,9 @@ function json(res, status, body) {
   res.writeHead(status, {
     'Content-Type': 'application/json; charset=utf-8',
     'Cache-Control': 'no-store',
+    'Access-Control-Allow-Origin': CORS_ORIGIN,
+    'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type',
   })
   res.end(JSON.stringify(body))
 }
@@ -55,6 +60,29 @@ function baseRoom(room, viewerId) {
 
 function publicState(room, viewerId) {
   const state = room.state || {}
+  if (isExtendedGame(room.gameType)) return publicExtendedState(room, viewerId)
+  if (room.gameType === 'mafia' && state.assignments) {
+    const role = state.assignments[viewerId] || null
+    const roleActions = role === 'mafia' ? state.nightActions?.mafiaVotes
+      : role === 'doctor' ? state.nightActions?.doctorTargets
+        : role === 'detective' ? state.nightActions?.detectiveTargets : null
+    const mafiaTeam = role === 'mafia' || role === 'yashka'
+      ? room.players
+          .filter((player) => ['mafia', 'yashka'].includes(state.assignments[player.id]))
+          .map((player) => ({ id: player.id, name: player.name, role: state.assignments[player.id] }))
+      : []
+    return {
+      ...state,
+      assignments: state.status === 'finished' ? state.assignments : undefined,
+      nightActions: undefined,
+      me: { role, alive: state.aliveIds?.includes(viewerId) },
+      mafiaTeam,
+      myInvestigations: state.investigationResults?.[viewerId] || [],
+      myNightActionDone: Boolean(roleActions?.[viewerId]),
+      dayVotes: Object.fromEntries(Object.keys(state.dayVotes || {}).map((id) => [id, true])),
+      investigationResults: undefined,
+    }
+  }
   if (room.gameType === 'imposter' && state.assignments) {
     return {
       ...state,
@@ -114,10 +142,14 @@ function setGame(room, gameType) {
   room.gameType = gameType
   if (gameType === 'imposter') {
     room.state = { status: 'setup', votes: {}, round: 0 }
+  } else if (gameType === 'mafia') {
+    room.state = { status: 'setup' }
   } else if (gameType === 'number') {
     room.state = { status: 'setup', secrets: {}, attempts: [], turnId: null, winnerId: null }
   } else if (gameType === 'planes') {
     room.state = { status: 'placement', planeCount: 1, planeProposal: null, planes: {}, shots: [], ready: {}, eliminated: {}, turnId: null, winnerId: null }
+  } else if (isExtendedGame(gameType)) {
+    room.state = initialExtendedState(gameType)
   }
 }
 
@@ -137,9 +169,81 @@ function canSwitchGame(room) {
   const status = room.state?.status
   if (!status) return true
   if (room.gameType === 'imposter') return status === 'setup' || status === 'result'
+  if (room.gameType === 'mafia') return status === 'setup' || status === 'finished'
   if (room.gameType === 'number') return status === 'setup' || status === 'finished'
   if (room.gameType === 'planes') return status === 'placement' || status === 'finished'
+  if (isExtendedGame(room.gameType)) return canSwitchExtended(room)
   return true
+}
+
+function shuffled(values) {
+  const result = [...values]
+  for (let i = result.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[result[i], result[j]] = [result[j], result[i]]
+  }
+  return result
+}
+
+function mafiaWinner(state) {
+  const alive = state.aliveIds || []
+  const mafiaAlive = alive.filter((playerId) => ['mafia', 'yashka'].includes(state.assignments[playerId])).length
+  const actualMafiaAlive = alive.filter((playerId) => state.assignments[playerId] === 'mafia').length
+  if (actualMafiaAlive === 0) return 'town'
+  if (mafiaAlive >= alive.length - mafiaAlive) return 'mafia'
+  return null
+}
+
+function finishMafiaIfNeeded(state) {
+  const winner = mafiaWinner(state)
+  if (!winner) return false
+  state.status = 'finished'
+  state.winner = winner
+  return true
+}
+
+function beginMafiaNight(state) {
+  state.status = 'night'
+  state.nightNumber = (state.nightNumber || 0) + 1
+  state.nightActions = { mafiaVotes: {}, doctorTargets: {}, detectiveTargets: {} }
+  state.dayVotes = {}
+}
+
+function resolveMafiaNight(room, state) {
+  const votes = Object.values(state.nightActions?.mafiaVotes || {})
+  const counts = {}
+  for (const targetId of votes) counts[targetId] = (counts[targetId] || 0) + 1
+  const maxVotes = Math.max(0, ...Object.values(counts))
+  const leaders = Object.keys(counts).filter((targetId) => counts[targetId] === maxVotes)
+  const killedId = leaders.length === 1 ? leaders[0] : null
+  const protectedIds = new Set(Object.values(state.nightActions?.doctorTargets || {}))
+  const saved = Boolean(killedId && protectedIds.has(killedId))
+
+  for (const [detectiveId, targetId] of Object.entries(state.nightActions?.detectiveTargets || {})) {
+    if (!state.investigationResults[detectiveId]) state.investigationResults[detectiveId] = []
+    state.investigationResults[detectiveId].push({
+      night: state.nightNumber,
+      targetId,
+      isMafia: state.assignments[targetId] === 'mafia',
+    })
+  }
+
+  if (killedId && !saved) state.aliveIds = state.aliveIds.filter((id) => id !== killedId)
+  state.lastNight = { killedId: killedId && !saved ? killedId : null, saved }
+  state.nightActions = { mafiaVotes: {}, doctorTargets: {}, detectiveTargets: {} }
+  if (!finishMafiaIfNeeded(state)) {
+    state.status = 'day'
+    state.dayVotes = {}
+  }
+}
+
+function mafiaNightReady(state) {
+  const alive = state.aliveIds || []
+  const actors = (role) => alive.filter((playerId) => state.assignments[playerId] === role)
+  const actions = state.nightActions || {}
+  return actors('mafia').every((id) => actions.mafiaVotes?.[id])
+    && actors('doctor').every((id) => actions.doctorTargets?.[id])
+    && actors('detective').every((id) => actions.detectiveTargets?.[id])
 }
 
 function score(secret, guess) {
@@ -263,6 +367,79 @@ function applyAction(room, playerId, action) {
       return
     }
   }
+  if (room.gameType === 'mafia') {
+    if (action.type === 'startMafia' && playerId === room.hostId && state.status === 'setup') {
+      if (room.players.length < 5) return
+      const requested = {
+        mafia: Math.max(1, Math.min(Number(action.mafiaCount) || 1, 4)),
+        doctor: Math.max(0, Math.min(Number(action.doctorCount) || 0, 3)),
+        detective: Math.max(0, Math.min(Number(action.detectiveCount) || 0, 3)),
+        yashka: Boolean(action.includeYashka) ? 1 : 0,
+      }
+      const specialCount = requested.mafia + requested.doctor + requested.detective + requested.yashka
+      if (specialCount >= room.players.length) return
+      const roleDeck = [
+        ...Array(requested.mafia).fill('mafia'),
+        ...Array(requested.doctor).fill('doctor'),
+        ...Array(requested.detective).fill('detective'),
+        ...Array(requested.yashka).fill('yashka'),
+        ...Array(room.players.length - specialCount).fill('citizen'),
+      ]
+      const roles = shuffled(roleDeck)
+      state.status = 'night'
+      state.config = requested
+      state.assignments = {}
+      room.players.forEach((player, index) => { state.assignments[player.id] = roles[index] })
+      state.aliveIds = room.players.map((player) => player.id)
+      state.investigationResults = {}
+      state.lastNight = null
+      state.lastEliminatedId = null
+      state.winner = null
+      state.nightNumber = 0
+      beginMafiaNight(state)
+      return
+    }
+    if (action.type === 'mafiaNightAction' && state.status === 'night' && state.aliveIds?.includes(playerId)) {
+      const role = state.assignments[playerId]
+      const targetId = action.targetId
+      if (!state.aliveIds.includes(targetId)) return
+      if (role === 'mafia' && state.assignments[targetId] !== 'mafia' && state.assignments[targetId] !== 'yashka') {
+        state.nightActions.mafiaVotes[playerId] = targetId
+      } else if (role === 'doctor') {
+        state.nightActions.doctorTargets[playerId] = targetId
+      } else if (role === 'detective' && targetId !== playerId) {
+        state.nightActions.detectiveTargets[playerId] = targetId
+      } else {
+        return
+      }
+      if (mafiaNightReady(state)) resolveMafiaNight(room, state)
+      return
+    }
+    if (action.type === 'resolveMafiaNight' && playerId === room.hostId && state.status === 'night') {
+      resolveMafiaNight(room, state)
+      return
+    }
+    if (action.type === 'mafiaDayVote' && state.status === 'day' && state.aliveIds?.includes(playerId)) {
+      if (!state.aliveIds.includes(action.targetId) || action.targetId === playerId) return
+      state.dayVotes[playerId] = action.targetId
+      const allVoted = state.aliveIds.every((id) => state.dayVotes[id])
+      if (allVoted) {
+        const counts = {}
+        for (const targetId of Object.values(state.dayVotes)) counts[targetId] = (counts[targetId] || 0) + 1
+        const maxVotes = Math.max(...Object.values(counts))
+        const leaders = Object.keys(counts).filter((id) => counts[id] === maxVotes)
+        state.lastEliminatedId = leaders.length === 1 ? leaders[0] : null
+        if (state.lastEliminatedId) state.aliveIds = state.aliveIds.filter((id) => id !== state.lastEliminatedId)
+        state.dayVotes = {}
+        if (!finishMafiaIfNeeded(state)) beginMafiaNight(state)
+      }
+      return
+    }
+    if (action.type === 'resetMafia' && playerId === room.hostId && state.status === 'finished') {
+      room.state = { status: 'setup' }
+      return
+    }
+  }
   if (room.gameType === 'number') {
     if (action.type === 'setSecret' && /^\d{4}$/.test(action.code)) {
       state.secrets[playerId] = action.code
@@ -364,16 +541,22 @@ function applyAction(room, playerId, action) {
       resetPlanesState(state)
     }
   }
+  if (isExtendedGame(room.gameType)) applyExtendedAction(room, playerId, action)
 }
 
 async function api(req, res, url) {
   try {
+    if (req.method === 'GET' && url.pathname === '/api/health') {
+      return json(res, 200, { ok: true, service: 'imposter-online', at: new Date().toISOString() })
+    }
     if (req.method === 'POST' && url.pathname === '/api/rooms') {
       cleanRooms()
       const data = await body(req)
       const player = { id: id(), name: String(data.name || 'Player').slice(0, 24) }
-      const room = { code: code(), hostId: player.id, players: [player], gameType: 'imposter', state: {}, clients: new Set(), updatedAt: Date.now() }
-      setGame(room, 'imposter')
+      const allowedGames = new Set(['imposter', 'mafia', 'number', 'planes', 'avalon', 'hitler', 'wink', 'twoRooms', 'bang'])
+      const gameType = allowedGames.has(data.gameType) ? data.gameType : 'imposter'
+      const room = { code: code(), hostId: player.id, players: [player], gameType, state: {}, clients: new Set(), updatedAt: Date.now() }
+      setGame(room, gameType)
       rooms.set(room.code, room)
       json(res, 201, { room: baseRoom(room, player.id), playerId: player.id })
       return
@@ -423,6 +606,7 @@ async function api(req, res, url) {
         'Content-Type': 'text/event-stream',
         'Cache-Control': 'no-store',
         Connection: 'keep-alive',
+        'Access-Control-Allow-Origin': CORS_ORIGIN,
       })
       const client = { res, viewerId }
       room.clients.add(client)
@@ -454,6 +638,15 @@ async function serveStatic(req, res, url) {
 
 createServer((req, res) => {
   const url = new URL(req.url || '/', `http://${req.headers.host || 'localhost'}`)
+  if (req.method === 'OPTIONS') {
+    res.writeHead(204, {
+      'Access-Control-Allow-Origin': CORS_ORIGIN,
+      'Access-Control-Allow-Methods': 'GET,POST,OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    })
+    res.end()
+    return
+  }
   if (url.pathname.startsWith('/api/')) void api(req, res, url)
   else void serveStatic(req, res, url)
 }).listen(PORT, '0.0.0.0', () => {

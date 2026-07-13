@@ -9,7 +9,7 @@ RUN npm run build
 # ---- Serve stage ----
 FROM node:20-alpine AS serve
 WORKDIR /app
-COPY server.js ./
+COPY server.js server-games.js ./
 COPY --from=build /app/dist ./dist
 EXPOSE 80
 CMD ["node", "server.js"]

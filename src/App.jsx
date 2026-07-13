@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from 'react'
 import { LANGS, STRINGS } from './i18n.js'
 import { WORDS, nextWordIndex } from './words.js'
+import { ExtendedOnlineGame, GameCatalog, gameLabel } from './ExtendedOnlineGames.jsx'
 
 const MIN_PLAYERS = 3
 const MAX_PLAYERS = 12
+const API_BASE = (import.meta.env.VITE_API_BASE || '').replace(/\/$/, '')
 const ONLINE_TEXT = {
   en: {
     onlineRoom: 'Online room',
@@ -18,6 +20,7 @@ const ONLINE_TEXT = {
     joinRoom: 'Join room',
     copy: 'Copy',
     imposterGame: 'Imposter',
+    mafiaGame: 'Mafia',
     planesGame: 'Plane battle',
     numberGame: 'Number guess',
     voiceOff: 'Voice off',
@@ -57,6 +60,7 @@ const ONLINE_TEXT = {
     readyUp: 'Ready up',
     yourTurnFire: 'Your turn to fire',
     yourBoard: 'Your board',
+    myBoard: 'My board',
     target: 'Target',
     planeCount: 'Plane count',
     propose: 'Propose',
@@ -70,6 +74,15 @@ const ONLINE_TEXT = {
     alivePlanes: 'Alive',
     damagedPlanes: 'Hit',
     deadPlanes: 'Down',
+    mafiaCount: 'Mafia', doctorCount: 'Doctors', detectiveCount: 'Detectives',
+    includeYashka: 'Add Yashka', yashkaDesc: 'Mafia-side helper who knows the mafia.',
+    mafiaMinPlayers: 'At least 5 players are required.', invalidRoles: 'Leave at least one citizen.', startMafia: 'Start Mafia',
+    night: 'Night', day: 'Day', role: 'Your role', mafia: 'Mafia', yashka: 'Yashka', doctor: 'Doctor', detective: 'Detective', citizen: 'Citizen',
+    mafiaTeam: 'Your mafia team', nightMafiaHelp: 'Choose one player to kill.', nightDoctorHelp: 'Choose one player to protect.', nightDetectiveHelp: 'Choose one player to investigate.',
+    nightWaiting: 'Sleep quietly while the special roles act.', eliminatedPlayer: 'You are out. Watch the game silently.', confirmAction: 'Confirm choice', actionSent: 'Choice sent', finishNight: 'Finish night now',
+    dayHelp: 'Discuss, then vote out one suspicious player.', peacefulNight: 'No one died during the night.', diedLastNight: 'died during the night.', votedOut: 'was voted out.',
+    investigation: 'Investigation results', isMafia: 'is Mafia', isNotMafia: 'is not Mafia', alive: 'Alive', out: 'Out',
+    townWins: 'The town wins!', mafiaWins: 'The mafia team wins!', rolesReveal: 'Roles', playMafiaAgain: 'Play again',
   },
   mn: {
     onlineRoom: 'Онлайн өрөө',
@@ -84,6 +97,7 @@ const ONLINE_TEXT = {
     joinRoom: 'Өрөөнд орох',
     copy: 'Хуулах',
     imposterGame: 'Imposter',
+    mafiaGame: 'Мафиа',
     planesGame: 'Онгоц буудах',
     numberGame: 'Тоо олох',
     voiceOff: 'Дуу унтраалттай',
@@ -123,6 +137,7 @@ const ONLINE_TEXT = {
     readyUp: 'Бэлэн болох',
     yourTurnFire: 'Буудах таны ээлж',
     yourBoard: 'Таны талбар',
+    myBoard: 'Миний талбар',
     target: 'Бай',
     planeCount: 'Онгоцны тоо',
     propose: 'Санал болгох',
@@ -136,6 +151,15 @@ const ONLINE_TEXT = {
     alivePlanes: 'Амьд',
     damagedPlanes: 'Шархдсан',
     deadPlanes: 'Унасан',
+    mafiaCount: 'Мафийн тоо', doctorCount: 'Эмчийн тоо', detectiveCount: 'Цагдаа/мөрдөгчийн тоо',
+    includeYashka: 'Яшка нэмэх', yashkaDesc: 'Мафийн талд тоглож, мафи хэн болохыг мэднэ.',
+    mafiaMinPlayers: 'Хамгийн багадаа 5 тоглогч хэрэгтэй.', invalidRoles: 'Доод тал нь нэг энгийн иргэн үлдээнэ үү.', startMafia: 'Мафиа эхлүүлэх',
+    night: 'Шөнө', day: 'Өдөр', role: 'Таны дүр', mafia: 'Мафиа', yashka: 'Яшка', doctor: 'Эмч', detective: 'Цагдаа/мөрдөгч', citizen: 'Энгийн иргэн',
+    mafiaTeam: 'Таны мафийн баг', nightMafiaHelp: 'Алах нэг хүнээ сонгоно уу.', nightDoctorHelp: 'Хамгаалах нэг хүнээ сонгоно уу.', nightDetectiveHelp: 'Шалгах нэг хүнээ сонгоно уу.',
+    nightWaiting: 'Тусгай дүрүүд үйлдлээ хийх зуур чимээгүй хүлээнэ үү.', eliminatedPlayer: 'Та хасагдсан. Тоглоомыг чимээгүй ажиглана уу.', confirmAction: 'Сонголтоо батлах', actionSent: 'Сонголт илгээгдсэн', finishNight: 'Шөнийг одоо дуусгах',
+    dayHelp: 'Ярилцаад сэжигтэй нэг хүнийг санал хураалтаар гаргана уу.', peacefulNight: 'Шөнө хэн ч үхсэнгүй.', diedLastNight: 'шөнө нас барлаа.', votedOut: 'санал хураалтаар хасагдлаа.',
+    investigation: 'Шалгалтын хариу', isMafia: 'мафи мөн', isNotMafia: 'мафи биш', alive: 'Амьд', out: 'Хасагдсан',
+    townWins: 'Хотынхон яллаа!', mafiaWins: 'Мафийн тал яллаа!', rolesReveal: 'Дүрүүд', playMafiaAgain: 'Дахин тоглох',
   },
   kk: {
     onlineRoom: 'Онлайн бөлме',
@@ -150,6 +174,7 @@ const ONLINE_TEXT = {
     joinRoom: 'Бөлмеге кіру',
     copy: 'Көшіру',
     imposterGame: 'Imposter',
+    mafiaGame: 'Мафия',
     planesGame: 'Ұшақ ату',
     numberGame: 'Сан табу',
     voiceOff: 'Дауыс өшірулі',
@@ -189,6 +214,7 @@ const ONLINE_TEXT = {
     readyUp: 'Дайын болу',
     yourTurnFire: 'Ату кезегі сізде',
     yourBoard: 'Сіздің тақтаңыз',
+    myBoard: 'Менің тақтам',
     target: 'Нысана',
     planeCount: 'Ұшақ саны',
     propose: 'Ұсыну',
@@ -202,6 +228,15 @@ const ONLINE_TEXT = {
     alivePlanes: 'Тірі',
     damagedPlanes: 'Жаралы',
     deadPlanes: 'Құлаған',
+    mafiaCount: 'Мафия саны', doctorCount: 'Дәрігер саны', detectiveCount: 'Тергеуші саны',
+    includeYashka: 'Яшка қосу', yashkaDesc: 'Мафия жағында ойнап, мафияны біледі.',
+    mafiaMinPlayers: 'Кемінде 5 ойыншы қажет.', invalidRoles: 'Кемінде бір бейбіт тұрғын қалсын.', startMafia: 'Мафияны бастау',
+    night: 'Түн', day: 'Күн', role: 'Сіздің рөліңіз', mafia: 'Мафия', yashka: 'Яшка', doctor: 'Дәрігер', detective: 'Тергеуші', citizen: 'Бейбіт тұрғын',
+    mafiaTeam: 'Сіздің мафия тобыңыз', nightMafiaHelp: 'Өлтіретін ойыншыны таңдаңыз.', nightDoctorHelp: 'Қорғайтын ойыншыны таңдаңыз.', nightDetectiveHelp: 'Тексеретін ойыншыны таңдаңыз.',
+    nightWaiting: 'Арнайы рөлдер әрекет еткенше үнсіз күтіңіз.', eliminatedPlayer: 'Сіз ойыннан шықтыңыз. Үнсіз бақылаңыз.', confirmAction: 'Таңдауды растау', actionSent: 'Таңдау жіберілді', finishNight: 'Түнді қазір аяқтау',
+    dayHelp: 'Талқылап, күдікті ойыншыға дауыс беріңіз.', peacefulNight: 'Түнде ешкім өлген жоқ.', diedLastNight: 'түнде қайтыс болды.', votedOut: 'дауыс берумен шығарылды.',
+    investigation: 'Тексеру нәтижелері', isMafia: 'мафия', isNotMafia: 'мафия емес', alive: 'Тірі', out: 'Шықты',
+    townWins: 'Қала жеңді!', mafiaWins: 'Мафия тобы жеңді!', rolesReveal: 'Рөлдер', playMafiaAgain: 'Қайта ойнау',
   },
 }
 
@@ -611,10 +646,11 @@ function Result({ t, imposterNames, word, allImposter, onAgain, onNew }) {
 }
 
 async function api(path, payload) {
+  const url = `${API_BASE}${path}`
   const options = payload
     ? { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) }
     : undefined
-  const res = await fetch(path, options)
+  const res = await fetch(url, options)
   const data = await res.json()
   if (!res.ok) throw new Error(data.error || 'Request failed')
   return data
@@ -627,10 +663,12 @@ function OnlineRoom({ lang, setLang, onBack }) {
   const [playerId, setPlayerId] = useState(localStorage.getItem('imposter-player-id') || '')
   const [room, setRoom] = useState(null)
   const [error, setError] = useState('')
+  const [selectedGame, setSelectedGame] = useState('')
+  const [showGamePicker, setShowGamePicker] = useState(false)
 
   useEffect(() => {
     if (!room?.code || !playerId) return undefined
-    const events = new EventSource(`/api/rooms/${room.code}/events?playerId=${playerId}`)
+    const events = new EventSource(`${API_BASE}/api/rooms/${room.code}/events?playerId=${playerId}`)
     events.addEventListener('room', (event) => setRoom(JSON.parse(event.data)))
     events.addEventListener('signal', (event) => {
       window.dispatchEvent(new CustomEvent('imposter-voice-signal', { detail: JSON.parse(event.data) }))
@@ -641,7 +679,7 @@ function OnlineRoom({ lang, setLang, onBack }) {
 
   async function createRoom() {
     setError('')
-    const result = await api('/api/rooms', { name: name || ot.playerName })
+    const result = await api('/api/rooms', { name: name || ot.playerName, gameType: selectedGame || 'imposter' })
     localStorage.setItem('imposter-name', name || ot.playerName)
     localStorage.setItem('imposter-player-id', result.playerId)
     setPlayerId(result.playerId)
@@ -677,8 +715,10 @@ function OnlineRoom({ lang, setLang, onBack }) {
     const status = room?.state?.status
     if (!status) return true
     if (room.gameType === 'imposter') return status === 'setup' || status === 'result'
+    if (room.gameType === 'mafia') return status === 'setup' || status === 'finished'
     if (room.gameType === 'number') return status === 'setup' || status === 'finished'
     if (room.gameType === 'planes') return status === 'placement' || status === 'finished'
+    if (['avalon', 'hitler', 'wink', 'twoRooms', 'bang'].includes(room.gameType)) return status === 'setup' || status === 'finished'
     return true
   }
 
@@ -698,11 +738,12 @@ function OnlineRoom({ lang, setLang, onBack }) {
               </button>
             ))}
           </div>
+          <GameCatalog lang={lang} selected={selectedGame} onSelect={setSelectedGame} />
           <label className="field">
             <span className="field-label">{ot.yourName}</span>
             <input value={name} maxLength={24} placeholder={ot.playerName} onChange={(e) => setName(e.target.value)} />
           </label>
-          <button className="primary big" onClick={() => void createRoom()}>{ot.createRoom}</button>
+          <button className="primary big" disabled={!selectedGame} onClick={() => void createRoom()}>{selectedGame ? `${gameLabel(selectedGame)} · ${ot.createRoom}` : ot.createRoom}</button>
           <div className="online-form">
             <label className="field">
               <span className="field-label">{ot.roomCode}</span>
@@ -723,25 +764,24 @@ function OnlineRoom({ lang, setLang, onBack }) {
         <button className="back-link" onClick={leaveRoom}>{ot.leaveRoom}</button>
         <div className="room-head">
           <span className="room-code">{room.code}</span>
-          <button className="mini-btn" onClick={() => navigator.clipboard?.writeText(room.code)}>{ot.copy}</button>
+          <div className="room-actions">
+            <VoiceChat room={room} playerId={playerId} action={action} ot={ot} />
+            <button className="mini-btn" onClick={() => navigator.clipboard?.writeText(room.code)}>{ot.copy}</button>
+          </div>
         </div>
         <div className="player-strip">
           {room.players.map((player) => (
             <span key={player.id} className={`player-chip ${player.id === playerId ? 'me' : ''}`}>{player.name}</span>
           ))}
         </div>
-        {isHost && (
-          <div className="game-tabs">
-            <button disabled={!canSwitchGame() && room.gameType !== 'imposter'} className={room.gameType === 'imposter' ? 'active' : ''} onClick={() => void action({ type: 'selectGame', gameType: 'imposter' })}>{ot.imposterGame}</button>
-            <button disabled={!canSwitchGame() && room.gameType !== 'planes'} className={room.gameType === 'planes' ? 'active' : ''} onClick={() => void action({ type: 'selectGame', gameType: 'planes' })}>{ot.planesGame}</button>
-            <button disabled={!canSwitchGame() && room.gameType !== 'number'} className={room.gameType === 'number' ? 'active' : ''} onClick={() => void action({ type: 'selectGame', gameType: 'number' })}>{ot.numberGame}</button>
-          </div>
-        )}
+        <div className="active-game-bar"><span className="game-icon small">{gameLabel(room.gameType).slice(0, 1)}</span><strong>{gameLabel(room.gameType)}</strong>{isHost && <button className="mini-btn" disabled={!canSwitchGame()} onClick={() => setShowGamePicker((value) => !value)}>{showGamePicker ? (lang === 'mn' ? 'Болих' : 'Cancel') : (lang === 'mn' ? 'Тоглоом солих' : 'Change game')}</button>}</div>
+        {isHost && showGamePicker && <div className="room-game-picker"><GameCatalog compact lang={lang} selected={room.gameType} onSelect={(gameType) => { void action({ type: 'selectGame', gameType }); setShowGamePicker(false) }} /></div>}
         {room.gameType === 'imposter' && <OnlineImposter room={room} playerId={playerId} lang={lang} action={action} ot={ot} />}
+        {room.gameType === 'mafia' && <OnlineMafia room={room} playerId={playerId} action={action} ot={ot} />}
         {room.gameType === 'number' && <OnlineNumber room={room} playerId={playerId} action={action} ot={ot} />}
         {room.gameType === 'planes' && <OnlinePlanes room={room} playerId={playerId} action={action} ot={ot} />}
+        <ExtendedOnlineGame room={room} playerId={playerId} action={action} lang={lang} />
         {error && <p className="error">{error}</p>}
-        <VoiceChat room={room} playerId={playerId} action={action} ot={ot} />
       </div>
     </div>
   )
@@ -750,10 +790,30 @@ function OnlineRoom({ lang, setLang, onBack }) {
 function VoiceChat({ room, playerId, action, ot }) {
   const [enabled, setEnabled] = useState(false)
   const [muted, setMuted] = useState(false)
+  const [speakerMuted, setSpeakerMuted] = useState(false)
   const [status, setStatus] = useState(ot.voiceOff)
   const streamRef = useRef(null)
   const peersRef = useRef(new Map())
   const makingOfferRef = useRef(new Set())
+  const audioContextRef = useRef(null)
+  const peerIds = room.players.filter((p) => p.id !== playerId).map((p) => p.id)
+  const peerKey = peerIds.join('|')
+
+  async function unlockAudio() {
+    try {
+      if (!audioContextRef.current) {
+        audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)()
+      }
+      if (audioContextRef.current.state === 'suspended') await audioContextRef.current.resume()
+    } catch {
+      // Older browsers may not expose AudioContext in standalone PWA mode.
+    }
+    document.querySelectorAll('audio[id^="voice-"]').forEach((audio) => {
+      audio.muted = speakerMuted
+      audio.playsInline = true
+      void audio.play().catch(() => {})
+    })
+  }
 
   useEffect(() => {
     if (!enabled) return undefined
@@ -781,9 +841,12 @@ function VoiceChat({ room, playerId, action, ot }) {
           audio = document.createElement('audio')
           audio.id = `voice-${peerId}`
           audio.autoplay = true
+          audio.playsInline = true
+          audio.muted = speakerMuted
           document.body.appendChild(audio)
         }
         audio.srcObject = event.streams[0]
+        void audio.play().catch(() => setStatus(ot.voiceReconnect))
       }
       pc.onconnectionstatechange = () => setStatus(`${ot.voiceConnecting}: ${pc.connectionState}`)
       pc._polite = polite
@@ -825,7 +888,7 @@ function VoiceChat({ room, playerId, action, ot }) {
 
     window.addEventListener('imposter-voice-signal', onSignal)
     ensureStream()
-      .then(() => Promise.all(room.players.filter((p) => p.id !== playerId).map((p) => connectTo(p.id))))
+      .then(() => Promise.all(peerIds.map((peerId) => connectTo(peerId))))
       .then(() => !disposed && setStatus(ot.voiceOn))
       .catch(() => !disposed && setStatus(ot.voiceMicNeeded))
 
@@ -837,21 +900,197 @@ function VoiceChat({ room, playerId, action, ot }) {
       streamRef.current?.getTracks().forEach((track) => track.stop())
       streamRef.current = null
     }
-  }, [enabled, room.players, playerId])
+  }, [enabled, peerKey, playerId])
 
-  function toggleMute() {
+  useEffect(() => {
+    document.querySelectorAll('audio[id^="voice-"]').forEach((audio) => {
+      audio.muted = speakerMuted
+      if (!speakerMuted) void audio.play().catch(() => {})
+    })
+  }, [speakerMuted])
+
+  function toggleVoice() {
+    void unlockAudio()
+    if (!enabled) {
+      setEnabled(true)
+      setMuted(false)
+      return
+    }
     const next = !muted
     setMuted(next)
     streamRef.current?.getAudioTracks().forEach((track) => { track.enabled = !next })
   }
 
+  function toggleSpeaker() {
+    const next = !speakerMuted
+    setSpeakerMuted(next)
+    document.querySelectorAll('audio[id^="voice-"]').forEach((audio) => {
+      audio.muted = next
+      if (!next) void audio.play().catch(() => {})
+    })
+  }
+
   return (
-    <div className="voice-bar">
-      <span>{status}</span>
-      <div>
-        <button className="mini-btn" onClick={() => setEnabled((value) => !value)}>{enabled ? ot.stopVoice : ot.startVoice}</button>
-        <button className="mini-btn" disabled={!enabled} onClick={toggleMute}>{muted ? ot.unmute : ot.mute}</button>
+    <div className="voice-fabs">
+      <button
+        className={`voice-fab ${enabled ? 'on' : ''} ${muted ? 'muted' : ''}`}
+        onClick={toggleVoice}
+        onDoubleClick={() => setEnabled(false)}
+        title={`${status}. ${enabled ? (muted ? ot.unmute : ot.mute) : ot.startVoice}`}
+        aria-label={`${status}. ${enabled ? (muted ? ot.unmute : ot.mute) : ot.startVoice}`}
+      >
+        <span className="mic-icon" />
+      </button>
+      <button
+        className={`voice-fab speaker ${speakerMuted ? 'muted' : enabled ? 'on' : ''}`}
+        onClick={toggleSpeaker}
+        title={speakerMuted ? 'Speaker muted' : 'Speaker on'}
+        aria-label={speakerMuted ? 'Speaker muted' : 'Speaker on'}
+      >
+        <span className="speaker-icon" />
+      </button>
+    </div>
+  )
+}
+
+function OnlineMafia({ room, playerId, action, ot }) {
+  const [mafiaCount, setMafiaCount] = useState(1)
+  const [doctorCount, setDoctorCount] = useState(1)
+  const [detectiveCount, setDetectiveCount] = useState(1)
+  const [includeYashka, setIncludeYashka] = useState(false)
+  const [targetId, setTargetId] = useState('')
+  const state = room.state || {}
+  const isHost = room.hostId === playerId
+  const aliveIds = state.aliveIds || []
+  const meAlive = state.me?.alive
+  const role = state.me?.role
+  const roleName = role ? ot[role] : ''
+  const specialCount = mafiaCount + doctorCount + detectiveCount + (includeYashka ? 1 : 0)
+  const invalidSetup = room.players.length < 5 || specialCount >= room.players.length
+
+  useEffect(() => { setTargetId('') }, [state.status, state.nightNumber])
+
+  if (state.status === 'setup') {
+    return (
+      <div className="online-panel mafia-panel">
+        <h2>{ot.mafiaGame}</h2>
+        {isHost ? (
+          <>
+            <div className="mafia-config">
+              <Stepper label={ot.mafiaCount} value={mafiaCount} min={1} max={Math.max(1, room.players.length - 1)} onChange={setMafiaCount} />
+              <Stepper label={ot.doctorCount} value={doctorCount} min={0} max={3} onChange={setDoctorCount} />
+              <Stepper label={ot.detectiveCount} value={detectiveCount} min={0} max={3} onChange={setDetectiveCount} />
+              <Toggle label={ot.includeYashka} desc={ot.yashkaDesc} checked={includeYashka} onChange={setIncludeYashka} />
+            </div>
+            {room.players.length < 5 && <p className="error">{ot.mafiaMinPlayers}</p>}
+            {room.players.length >= 5 && specialCount >= room.players.length && <p className="error">{ot.invalidRoles}</p>}
+            <button
+              className="primary big"
+              disabled={invalidSetup}
+              onClick={() => void action({ type: 'startMafia', mafiaCount, doctorCount, detectiveCount, includeYashka })}
+            >
+              {ot.startMafia}
+            </button>
+          </>
+        ) : <p className="host-note">{room.players.length < 5 ? ot.mafiaMinPlayers : ot.waitingHost}</p>}
       </div>
+    )
+  }
+
+  const activePlayers = room.players.filter((player) => aliveIds.includes(player.id))
+  const roleTargets = activePlayers.filter((player) => {
+    if (role === 'mafia') return !state.mafiaTeam?.some((member) => member.id === player.id)
+    if (role === 'detective') return player.id !== playerId
+    return true
+  })
+  const canActAtNight = meAlive && ['mafia', 'doctor', 'detective'].includes(role)
+  const nightHelp = role === 'mafia' ? ot.nightMafiaHelp : role === 'doctor' ? ot.nightDoctorHelp : ot.nightDetectiveHelp
+  const playerName = (id) => room.players.find((player) => player.id === id)?.name || ot.someone
+
+  if (state.status === 'finished') {
+    return (
+      <div className="online-panel mafia-panel">
+        <div className={`mafia-phase ${state.winner}`}>{state.winner === 'town' ? ot.townWins : ot.mafiaWins}</div>
+        <h3 className="section-title">{ot.rolesReveal}</h3>
+        <div className="mafia-roster">
+          {room.players.map((player) => (
+            <div className="mafia-player" key={player.id}>
+              <span>{player.name}</span>
+              <b>{ot[state.assignments?.[player.id]]}</b>
+            </div>
+          ))}
+        </div>
+        {isHost && <button className="primary big" onClick={() => void action({ type: 'resetMafia' })}>{ot.playMafiaAgain}</button>}
+      </div>
+    )
+  }
+
+  return (
+    <div className="online-panel mafia-panel">
+      <div className={`mafia-phase ${state.status}`}>
+        <span>{state.status === 'night' ? '☾' : '☀'}</span>
+        {state.status === 'night' ? `${ot.night} ${state.nightNumber}` : ot.day}
+      </div>
+      <div className={`mafia-role-card role-${role}`}>
+        <span>{ot.role}</span>
+        <strong>{roleName}</strong>
+        {state.mafiaTeam?.length > 0 && (
+          <small>{ot.mafiaTeam}: {state.mafiaTeam.map((member) => `${member.name} (${ot[member.role]})`).join(', ')}</small>
+        )}
+      </div>
+
+      <div className="mafia-roster">
+        {room.players.map((player) => {
+          const alive = aliveIds.includes(player.id)
+          return <div className={`mafia-player ${alive ? '' : 'out'}`} key={player.id}><span>{player.name}</span><b>{alive ? ot.alive : ot.out}</b></div>
+        })}
+      </div>
+
+      {!meAlive && <p className="host-note">{ot.eliminatedPlayer}</p>}
+
+      {state.status === 'night' && (
+        <>
+          {state.lastEliminatedId && <p className="mafia-announcement">{playerName(state.lastEliminatedId)} {ot.votedOut}</p>}
+          {canActAtNight ? (
+            <>
+              <p className="host-note">{nightHelp}</p>
+              <div className="vote-grid mafia-targets">
+                {roleTargets.map((player) => <button disabled={state.myNightActionDone} key={player.id} className={targetId === player.id ? 'active' : ''} onClick={() => setTargetId(player.id)}>{player.name}</button>)}
+              </div>
+              <button className="primary big" disabled={!targetId || state.myNightActionDone} onClick={() => void action({ type: 'mafiaNightAction', targetId })}>
+                {state.myNightActionDone ? ot.actionSent : ot.confirmAction}
+              </button>
+            </>
+          ) : meAlive && <p className="host-note">{ot.nightWaiting}</p>}
+          {isHost && <button className="ghost" onClick={() => void action({ type: 'resolveMafiaNight' })}>{ot.finishNight}</button>}
+        </>
+      )}
+
+      {state.status === 'day' && (
+        <>
+          <p className="mafia-announcement">
+            {state.lastNight?.killedId ? `${playerName(state.lastNight.killedId)} ${ot.diedLastNight}` : ot.peacefulNight}
+          </p>
+          <p className="host-note">{ot.dayHelp}</p>
+          {meAlive && (
+            <>
+              <div className="vote-grid mafia-targets">
+                {activePlayers.filter((player) => player.id !== playerId).map((player) => <button disabled={Boolean(state.dayVotes?.[playerId])} key={player.id} className={targetId === player.id ? 'active' : ''} onClick={() => setTargetId(player.id)}>{player.name}</button>)}
+              </div>
+              <button className="primary big" disabled={!targetId || state.dayVotes?.[playerId]} onClick={() => void action({ type: 'mafiaDayVote', targetId })}>
+                {state.dayVotes?.[playerId] ? ot.voteSent : ot.vote}
+              </button>
+            </>
+          )}
+        </>
+      )}
+
+      {state.myInvestigations?.length > 0 && (
+        <div className="investigation-list">
+          <span className="result-label">{ot.investigation}</span>
+          {state.myInvestigations.map((result) => <span key={`${result.night}-${result.targetId}`}>{playerName(result.targetId)} — {result.isMafia ? ot.isMafia : ot.isNotMafia}</span>)}
+        </div>
+      )}
     </div>
   )
 }
@@ -1041,15 +1280,16 @@ function rotatePlaneCells(rotation) {
 function OnlinePlanes({ room, playerId, action, ot }) {
   const [rotation, setRotation] = useState(0)
   const [selectedPlaneIndex, setSelectedPlaneIndex] = useState(0)
-  const [targetId, setTargetId] = useState('')
+  const [viewId, setViewId] = useState(playerId)
   const [proposedCount, setProposedCount] = useState(1)
   const state = room.state || {}
   const myTurn = state.turnId === playerId
   const planeCount = state.planeCount || 1
   const myPlanes = state.planes?.[playerId] || []
   const targets = room.players.filter((player) => player.id !== playerId && !state.eliminated?.[player.id])
-  const activeTargetId = targetId || targets[0]?.id || ''
-  const myShots = (state.shots || []).filter((shot) => shot.playerId === playerId && shot.targetId === activeTargetId)
+  const activeViewId = viewId === playerId || targets.some((player) => player.id === viewId) ? viewId : playerId
+  const viewingSelf = activeViewId === playerId
+  const myShots = (state.shots || []).filter((shot) => shot.playerId === playerId && shot.targetId === activeViewId)
   const incoming = (state.shots || []).filter((shot) => shot.targetId === playerId)
   const proposal = state.planeProposal
   const proposer = room.players.find((player) => player.id === proposal?.proposedBy)
@@ -1098,17 +1338,22 @@ function OnlinePlanes({ room, playerId, action, ot }) {
       ) : (
         <>
           <p className="host-note">{state.status === 'finished' ? `${room.players.find((p) => p.id === state.winnerId)?.name} ${ot.won}` : myTurn ? ot.yourTurnFire : ot.waitingTurn}</p>
-          <h3 className="section-title">{ot.target}</h3>
-          <div className="vote-grid">
+          <h3 className="section-title">{viewingSelf ? ot.myBoard : ot.target}</h3>
+          <div className="board-switcher">
+            <button className={viewingSelf ? 'active' : ''} onClick={() => setViewId(playerId)}>
+              <span className="target-name">{ot.myBoard}</span>
+            </button>
             {targets.map((player) => (
-              <button key={player.id} className={activeTargetId === player.id ? 'active' : ''} onClick={() => setTargetId(player.id)}>
+              <button key={player.id} className={activeViewId === player.id ? 'active' : ''} onClick={() => setViewId(player.id)}>
                 <TargetLabel stat={stats.find((item) => item.player.id === player.id)} ot={ot} />
               </button>
             ))}
           </div>
-          <BattleGrid shots={myShots} onCell={(cell) => myTurn && activeTargetId && void action({ type: 'fire', ...cell, targetId: activeTargetId })} />
-          <h3 className="section-title">{ot.yourBoard}</h3>
-          <BattleGrid planes={myPlanes} shots={incoming} />
+          <BattleGrid
+            planes={viewingSelf ? myPlanes : []}
+            shots={viewingSelf ? incoming : myShots}
+            onCell={(cell) => myTurn && !viewingSelf && activeViewId && void action({ type: 'fire', ...cell, targetId: activeViewId })}
+          />
           <button className="ghost" onClick={() => void action({ type: 'reset' })}>{ot.reset}</button>
         </>
       )}
@@ -1122,9 +1367,9 @@ function PlaneStatusStrip({ stats, playerId, ot }) {
       {stats.map((stat) => (
         <div key={stat.player.id} className={`plane-status ${stat.player.id === playerId ? 'me' : ''} ${stat.eliminated ? 'out' : ''}`}>
           <span className="plane-status-name">{stat.player.name}</span>
-          <span className="plane-status-row"><span className="plane-glyph alive" />{ot.alivePlanes}: {stat.alive}</span>
-          <span className="plane-status-row"><span className="plane-glyph damaged" />{ot.damagedPlanes}: {stat.damaged}</span>
-          <span className="plane-status-row"><span className="plane-glyph dead" />{ot.deadPlanes}: {stat.dead}</span>
+          <span className="plane-status-row" title={ot.alivePlanes}><span className="plane-glyph alive" />{stat.alive}</span>
+          <span className="plane-status-row" title={ot.damagedPlanes}><span className="plane-glyph damaged" />{stat.damaged}</span>
+          <span className="plane-status-row" title={ot.deadPlanes}><span className="plane-glyph dead" />{stat.dead}</span>
         </div>
       ))}
     </div>
