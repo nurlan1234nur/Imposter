@@ -77,12 +77,12 @@ const ONLINE_TEXT = {
     mafiaCount: 'Mafia', doctorCount: 'Doctors', detectiveCount: 'Detectives',
     includeYashka: 'Add Yashka', yashkaDesc: 'Mafia-side helper who knows the mafia.',
     allowMafiaSkip: 'Allow skipping a kill', mafiaSkipDesc: 'The mafia team may skip one kill during the entire game.', skipKill: 'Kill no one tonight', skipUsed: 'The one-time skip has been used.',
-    mafiaMinPlayers: 'At least 5 players are required.', invalidRoles: 'Leave at least one citizen.', startMafia: 'Start Mafia',
+    mafiaMinPlayers: 'At least 5 players are required.', invalidRoles: 'Leave at least one citizen.', mafiaParityError: 'The Mafia side must start smaller than the Town side.', startMafia: 'Start Mafia',
     night: 'Night', day: 'Day', role: 'Your role', mafia: 'Mafia', yashka: 'Yashka', doctor: 'Doctor', detective: 'Detective', citizen: 'Citizen',
     mafiaTeam: 'Your mafia team', nightMafiaHelp: 'Choose one player to kill.', nightDoctorHelp: 'Choose one player to protect.', nightDetectiveHelp: 'Choose one player to investigate.',
     nightWaiting: 'Sleep quietly while the special roles act.', eliminatedPlayer: 'You are out. Watch the game silently.', confirmAction: 'Confirm choice', actionSent: 'Choice sent', finishNight: 'Vote to end the night',
     nightDuration: 'Night duration (minutes)', dayDuration: 'Day duration (minutes)', timeLeft: 'Time left', endNightVotes: 'End-night votes', endNightVoted: 'You voted to end the night',
-    dayHelp: 'Discuss, then vote out one suspicious player.', peacefulNight: 'No one died during the night.', diedLastNight: 'died during the night.', votedOut: 'was voted out.',
+    dayHelp: 'Discuss, then vote out one suspicious player.', peacefulNight: 'No one died during the night.', diedLastNight: 'died during the night.', votedOut: 'was voted out.', waitingNightActions: 'All Mafia, Doctor, and Detective actions must be submitted first.', finishDay: 'Vote to skip the day', endDayVoted: 'You voted to skip the day', allowDaySkip: 'Allow days without elimination', daySkipDesc: 'A majority may skip the day without voting anyone out.', doctorSelfHealBlocked: 'You protected yourself last night. Choose someone else tonight.',
     investigation: 'Investigation results', isMafia: 'is Mafia', isNotMafia: 'is not Mafia', alive: 'Alive', out: 'Out',
     townWins: 'The town wins!', mafiaWins: 'The mafia team wins!', rolesReveal: 'Roles', playMafiaAgain: 'Play again',
   },
@@ -156,12 +156,12 @@ const ONLINE_TEXT = {
     mafiaCount: 'Мафийн тоо', doctorCount: 'Эмчийн тоо', detectiveCount: 'Цагдаа/мөрдөгчийн тоо',
     includeYashka: 'Яшка нэмэх', yashkaDesc: 'Мафийн талд тоглож, мафи хэн болохыг мэднэ.',
     allowMafiaSkip: 'Аллага алгасахыг зөвшөөрөх', mafiaSkipDesc: 'Мафийн баг бүх тоглолтын турш нэг удаа аллага алгасаж болно.', skipKill: 'Энэ шөнө хэнийг ч алахгүй', skipUsed: 'Нэг удаагийн алгасалтыг ашигласан.',
-    mafiaMinPlayers: 'Хамгийн багадаа 5 тоглогч хэрэгтэй.', invalidRoles: 'Доод тал нь нэг энгийн иргэн үлдээнэ үү.', startMafia: 'Мафиа эхлүүлэх',
+    mafiaMinPlayers: 'Хамгийн багадаа 5 тоглогч хэрэгтэй.', invalidRoles: 'Доод тал нь нэг энгийн иргэн үлдээнэ үү.', mafiaParityError: 'Тоглоом эхлэхэд мафийн тал хотын талаас цөөн байх ёстой.', startMafia: 'Мафиа эхлүүлэх',
     night: 'Шөнө', day: 'Өдөр', role: 'Таны дүр', mafia: 'Мафиа', yashka: 'Яшка', doctor: 'Эмч', detective: 'Цагдаа/мөрдөгч', citizen: 'Энгийн иргэн',
     mafiaTeam: 'Таны мафийн баг', nightMafiaHelp: 'Алах нэг хүнээ сонгоно уу.', nightDoctorHelp: 'Хамгаалах нэг хүнээ сонгоно уу.', nightDetectiveHelp: 'Шалгах нэг хүнээ сонгоно уу.',
     nightWaiting: 'Тусгай дүрүүд үйлдлээ хийх зуур чимээгүй хүлээнэ үү.', eliminatedPlayer: 'Та хасагдсан. Тоглоомыг чимээгүй ажиглана уу.', confirmAction: 'Сонголтоо батлах', actionSent: 'Сонголт илгээгдсэн', finishNight: 'Шөнийг дуусгахад санал өгөх',
     nightDuration: 'Шөнийн хугацаа (минут)', dayDuration: 'Өдрийн хугацаа (минут)', timeLeft: 'Үлдсэн хугацаа', endNightVotes: 'Шөнө дуусгах санал', endNightVoted: 'Та шөнө дуусгахад санал өгсөн',
-    dayHelp: 'Ярилцаад сэжигтэй нэг хүнийг санал хураалтаар гаргана уу.', peacefulNight: 'Шөнө хэн ч үхсэнгүй.', diedLastNight: 'шөнө нас барлаа.', votedOut: 'санал хураалтаар хасагдлаа.',
+    dayHelp: 'Ярилцаад сэжигтэй нэг хүнийг санал хураалтаар гаргана уу.', peacefulNight: 'Шөнө хэн ч үхсэнгүй.', diedLastNight: 'шөнө нас барлаа.', votedOut: 'санал хураалтаар хасагдлаа.', waitingNightActions: 'Бүх мафиа, эмч, мөрдөгч үйлдлээ эхлээд илгээх ёстой.', finishDay: 'Өдрийг өнжүүлэх санал', endDayVoted: 'Та өдрийг өнжүүлэх санал өгсөн', allowDaySkip: 'Хүн хасахгүй өдөр өнжүүлэх', daySkipDesc: 'Олонх зөвшөөрвөл хүн хасахгүйгээр шууд шөнө болно.', doctorSelfHealBlocked: 'Та өмнөх шөнө өөрийгөө хамгаалсан. Энэ шөнө өөр хүн сонгоно уу.',
     investigation: 'Шалгалтын хариу', isMafia: 'мафи мөн', isNotMafia: 'мафи биш', alive: 'Амьд', out: 'Хасагдсан',
     townWins: 'Хотынхон яллаа!', mafiaWins: 'Мафийн тал яллаа!', rolesReveal: 'Дүрүүд', playMafiaAgain: 'Дахин тоглох',
   },
@@ -235,12 +235,12 @@ const ONLINE_TEXT = {
     mafiaCount: 'Мафия саны', doctorCount: 'Дәрігер саны', detectiveCount: 'Тергеуші саны',
     includeYashka: 'Яшка қосу', yashkaDesc: 'Мафия жағында ойнап, мафияны біледі.',
     allowMafiaSkip: 'Өлтіруді өткізуге рұқсат беру', mafiaSkipDesc: 'Мафия тобы ойын бойы бір рет өлтіруді өткізе алады.', skipKill: 'Бұл түнде ешкімді өлтірмеу', skipUsed: 'Бір реттік өткізу қолданылды.',
-    mafiaMinPlayers: 'Кемінде 5 ойыншы қажет.', invalidRoles: 'Кемінде бір бейбіт тұрғын қалсын.', startMafia: 'Мафияны бастау',
+    mafiaMinPlayers: 'Кемінде 5 ойыншы қажет.', invalidRoles: 'Кемінде бір бейбіт тұрғын қалсын.', mafiaParityError: 'Ойын басында мафия жағы қала жағынан аз болуы керек.', startMafia: 'Мафияны бастау',
     night: 'Түн', day: 'Күн', role: 'Сіздің рөліңіз', mafia: 'Мафия', yashka: 'Яшка', doctor: 'Дәрігер', detective: 'Тергеуші', citizen: 'Бейбіт тұрғын',
     mafiaTeam: 'Сіздің мафия тобыңыз', nightMafiaHelp: 'Өлтіретін ойыншыны таңдаңыз.', nightDoctorHelp: 'Қорғайтын ойыншыны таңдаңыз.', nightDetectiveHelp: 'Тексеретін ойыншыны таңдаңыз.',
     nightWaiting: 'Арнайы рөлдер әрекет еткенше үнсіз күтіңіз.', eliminatedPlayer: 'Сіз ойыннан шықтыңыз. Үнсіз бақылаңыз.', confirmAction: 'Таңдауды растау', actionSent: 'Таңдау жіберілді', finishNight: 'Түнді аяқтауға дауыс беру',
     nightDuration: 'Түн ұзақтығы (минут)', dayDuration: 'Күн ұзақтығы (минут)', timeLeft: 'Қалған уақыт', endNightVotes: 'Түнді аяқтау дауысы', endNightVoted: 'Сіз түнді аяқтауға дауыс бердіңіз',
-    dayHelp: 'Талқылап, күдікті ойыншыға дауыс беріңіз.', peacefulNight: 'Түнде ешкім өлген жоқ.', diedLastNight: 'түнде қайтыс болды.', votedOut: 'дауыс берумен шығарылды.',
+    dayHelp: 'Талқылап, күдікті ойыншыға дауыс беріңіз.', peacefulNight: 'Түнде ешкім өлген жоқ.', diedLastNight: 'түнде қайтыс болды.', votedOut: 'дауыс берумен шығарылды.', waitingNightActions: 'Барлық мафия, дәрігер және тергеуші әрекетін жіберуі керек.', finishDay: 'Күнді өткізіп жіберу', endDayVoted: 'Сіз күнді өткізуге дауыс бердіңіз', allowDaySkip: 'Адам шығармай күнді өткізу', daySkipDesc: 'Көпшілік қолдаса, ешкім шығарылмай түн басталады.', doctorSelfHealBlocked: 'Өткен түні өзіңізді қорғадыңыз. Бұл түні басқа адамды таңдаңыз.',
     investigation: 'Тексеру нәтижелері', isMafia: 'мафия', isNotMafia: 'мафия емес', alive: 'Тірі', out: 'Шықты',
     townWins: 'Қала жеңді!', mafiaWins: 'Мафия тобы жеңді!', rolesReveal: 'Рөлдер', playMafiaAgain: 'Қайта ойнау',
   },
@@ -962,6 +962,7 @@ function VoiceChat({ room, playerId, action, ot }) {
       if (!streamRef.current) {
         streamRef.current = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
       }
+      streamRef.current.getAudioTracks().forEach((track) => { track.enabled = !muted })
       return streamRef.current
     }
 
@@ -1061,6 +1062,13 @@ function VoiceChat({ room, playerId, action, ot }) {
   }
 
   function toggleSpeaker() {
+    if (!enabled) {
+      setMuted(true)
+      setSpeakerMuted(false)
+      setEnabled(true)
+      void unlockAudio()
+      return
+    }
     const next = !speakerMuted
     setSpeakerMuted(next)
     document.querySelectorAll('audio[id^="voice-"]').forEach((audio) => {
@@ -1070,26 +1078,19 @@ function VoiceChat({ room, playerId, action, ot }) {
   }
 
   return (
-    <div className="voice-fabs">
-      <button
-        className={`voice-fab ${enabled ? 'on' : ''} ${muted ? 'muted' : ''}`}
-        onClick={toggleVoice}
-        onDoubleClick={() => setEnabled(false)}
-        title={`${status}. ${enabled ? (muted ? ot.unmute : ot.mute) : ot.startVoice}`}
-        aria-label={`${status}. ${enabled ? (muted ? ot.unmute : ot.mute) : ot.startVoice}`}
-      >
-        <span className="mic-icon" />
-      </button>
-      <button
-        className={`voice-fab speaker ${speakerMuted ? 'muted' : enabled ? 'on' : ''}`}
-        onClick={toggleSpeaker}
-        title={speakerMuted ? 'Speaker muted' : 'Speaker on'}
-        aria-label={speakerMuted ? 'Speaker muted' : 'Speaker on'}
-      >
-        <span className="speaker-icon" />
-      </button>
+    <div className="voice-controls-inline">
+      <button className={`voice-trigger ${enabled && !muted ? 'on' : ''} ${enabled && muted ? 'muted' : ''}`} onClick={toggleVoice} title={`${status}. ${enabled ? (muted ? ot.unmute : ot.mute) : ot.startVoice}`} aria-label={enabled ? (muted ? ot.unmute : ot.mute) : ot.startVoice}><VoiceMicIcon muted={!enabled || muted} /><span className="voice-state-dot" /></button>
+      <button className={`voice-trigger ${enabled && !speakerMuted ? 'on' : ''} ${enabled && speakerMuted ? 'muted' : ''}`} onClick={toggleSpeaker} title={speakerMuted ? 'Speaker асаах' : 'Speaker унтраах'} aria-label={speakerMuted ? 'Speaker асаах' : 'Speaker унтраах'}><VoiceSpeakerIcon muted={!enabled || speakerMuted} /><span className="voice-state-dot" /></button>
     </div>
   )
+}
+
+function VoiceMicIcon({ muted }) {
+  return <svg className="voice-svg" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3" fill="none" stroke="currentColor" strokeWidth="1.8" /><path d="M6.5 11.5a5.5 5.5 0 0 0 11 0M12 17v4M9 21h6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />{muted && <path d="M4 4l16 16" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />}</svg>
+}
+
+function VoiceSpeakerIcon({ muted }) {
+  return <svg className="voice-svg" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />{muted ? <path d="M17 9l4 6M21 9l-4 6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /> : <><path d="M16 9.5a4 4 0 0 1 0 5" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /><path d="M18.5 7a7.5 7.5 0 0 1 0 10" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></>}</svg>
 }
 
 function OnlineMafia({ room, playerId, action, ot }) {
@@ -1098,6 +1099,7 @@ function OnlineMafia({ room, playerId, action, ot }) {
   const [detectiveCount, setDetectiveCount] = useState(1)
   const [includeYashka, setIncludeYashka] = useState(false)
   const [allowMafiaSkip, setAllowMafiaSkip] = useState(true)
+  const [allowDaySkip, setAllowDaySkip] = useState(true)
   const [nightMinutes, setNightMinutes] = useState(5)
   const [dayMinutes, setDayMinutes] = useState(5)
   const [targetId, setTargetId] = useState('')
@@ -1110,7 +1112,10 @@ function OnlineMafia({ room, playerId, action, ot }) {
   const role = state.me?.role
   const roleName = role ? ot[role] : ''
   const specialCount = mafiaCount + doctorCount + detectiveCount + (includeYashka ? 1 : 0)
-  const invalidSetup = room.players.length < 5 || specialCount >= room.players.length
+  const mafiaSideCount = mafiaCount + (includeYashka ? 1 : 0)
+  const townSideCount = room.players.length - mafiaSideCount
+  const invalidParity = mafiaSideCount >= townSideCount
+  const invalidSetup = room.players.length < 5 || specialCount >= room.players.length || invalidParity
 
   useEffect(() => { setTargetId('') }, [state.status, state.nightNumber])
   useEffect(() => {
@@ -1147,10 +1152,12 @@ function OnlineMafia({ room, playerId, action, ot }) {
             <section className="mafia-setup-card">
               <h3>{ot.specialRules || 'Тусгай дүрэм'}</h3>
               <div className="mafia-rule-row"><div><strong>{ot.allowMafiaSkip}</strong><small>{ot.mafiaSkipDesc}</small></div><button className={`setup-switch ${allowMafiaSkip ? 'on' : ''}`} onClick={() => setAllowMafiaSkip(!allowMafiaSkip)}><span /></button></div>
+              <div className="mafia-rule-row"><div><strong>{ot.allowDaySkip}</strong><small>{ot.daySkipDesc}</small></div><button className={`setup-switch ${allowDaySkip ? 'on' : ''}`} onClick={() => setAllowDaySkip(!allowDaySkip)}><span /></button></div>
             </section>
             {room.players.length < 5 && <p className="error">{ot.mafiaMinPlayers}</p>}
             {room.players.length >= 5 && specialCount >= room.players.length && <p className="error">{ot.invalidRoles}</p>}
-            <div className="mafia-setup-footer"><button className="primary big" disabled={invalidSetup} onClick={() => void action({ type: 'startMafia', mafiaCount, doctorCount, detectiveCount, includeYashka, allowMafiaSkip, nightMinutes, dayMinutes })}>🌙 {ot.startMafia}</button></div>
+            {room.players.length >= 5 && specialCount < room.players.length && invalidParity && <p className="error">{ot.mafiaParityError}</p>}
+            <div className="mafia-setup-footer"><button className="primary big" disabled={invalidSetup} onClick={() => void action({ type: 'startMafia', mafiaCount, doctorCount, detectiveCount, includeYashka, allowMafiaSkip, allowDaySkip, nightMinutes, dayMinutes })}>🌙 {ot.startMafia}</button></div>
           </>
         ) : <p className="host-note">{room.players.length < 5 ? ot.mafiaMinPlayers : ot.waitingHost}</p>}
       </div>
@@ -1215,8 +1222,9 @@ function OnlineMafia({ room, playerId, action, ot }) {
           {canActAtNight ? (
             <>
               <p className="host-note">{nightHelp}</p>
+              {role === 'doctor' && state.doctorCannotSelfHeal && <p className="online-note">{ot.doctorSelfHealBlocked}</p>}
               <div className="vote-grid mafia-targets">
-                {roleTargets.map((player) => <button disabled={state.myNightActionDone} key={player.id} className={targetId === player.id ? 'active' : ''} onClick={() => setTargetId(player.id)}>{player.name}</button>)}
+                {roleTargets.map((player) => <button disabled={state.myNightActionDone || (role === 'doctor' && state.doctorCannotSelfHeal && player.id === playerId)} key={player.id} className={targetId === player.id ? 'active' : ''} onClick={() => setTargetId(player.id)}>{player.name}</button>)}
                 {role === 'mafia' && state.config?.allowMafiaSkip && !state.mafiaSkipUsed && <button disabled={state.myNightActionDone} className={targetId === '__skip__' ? 'active skip-kill' : 'skip-kill'} onClick={() => setTargetId('__skip__')}>{ot.skipKill}</button>}
               </div>
               {role === 'mafia' && state.config?.allowMafiaSkip && state.mafiaSkipUsed && <p className="online-note">{ot.skipUsed}</p>}
@@ -1226,9 +1234,12 @@ function OnlineMafia({ room, playerId, action, ot }) {
             </>
           ) : meAlive && <p className="host-note">{ot.nightWaiting}</p>}
           {meAlive && (
-            <button className="ghost" disabled={state.nightEndVotes?.mine} onClick={() => void action({ type: 'voteEndMafiaNight' })}>
-              {state.nightEndVotes?.mine ? ot.endNightVoted : ot.finishNight} · {state.nightEndVotes?.count || 0}/{state.nightEndVotes?.needed || 1}
-            </button>
+            <>
+              {!state.nightReady && <p className="online-note">{ot.waitingNightActions}</p>}
+              <button className="ghost" disabled={!state.nightReady || state.nightEndVotes?.mine} onClick={() => void action({ type: 'voteEndMafiaNight' })}>
+                {state.nightEndVotes?.mine ? ot.endNightVoted : ot.finishNight} · {state.nightEndVotes?.count || 0}/{state.nightEndVotes?.needed || 1}
+              </button>
+            </>
           )}
         </>
       )}
@@ -1247,6 +1258,9 @@ function OnlineMafia({ room, playerId, action, ot }) {
               <button className="primary big" disabled={!targetId || state.dayVotes?.[playerId]} onClick={() => void action({ type: 'mafiaDayVote', targetId })}>
                 {state.dayVotes?.[playerId] ? ot.voteSent : ot.vote}
               </button>
+              {state.config?.allowDaySkip && <button className="ghost day-skip-vote" disabled={state.dayEndVotes?.mine} onClick={() => void action({ type: 'voteEndMafiaDay' })}>
+                {state.dayEndVotes?.mine ? ot.endDayVoted : ot.finishDay} · {state.dayEndVotes?.count || 0}/{state.dayEndVotes?.needed || 1}
+              </button>}
             </>
           )}
         </>

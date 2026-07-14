@@ -82,11 +82,18 @@ function publicState(room, viewerId) {
       lastNight: state.lastNight ? { killedId: state.lastNight.killedId } : null,
       myInvestigations: state.investigationResults?.[viewerId] || [],
       myNightActionDone: Boolean(roleActions?.[viewerId]),
+      doctorCannotSelfHeal: role === 'doctor' && state.lastDoctorTargets?.[viewerId] === viewerId,
       dayVotes: Object.fromEntries(Object.keys(state.dayVotes || {}).map((id) => [id, true])),
+      nightReady: mafiaNightReady(state),
       nightEndVotes: {
         count: Object.keys(state.nightEndVotes || {}).length,
         needed: Math.floor((state.aliveIds?.length || 0) / 2) + 1,
         mine: Boolean(state.nightEndVotes?.[viewerId]),
+      },
+      dayEndVotes: {
+        count: Object.keys(state.dayEndVotes || {}).length,
+        needed: Math.floor((state.aliveIds?.length || 0) / 2) + 1,
+        mine: Boolean(state.dayEndVotes?.[viewerId]),
       },
       investigationResults: undefined,
     }
@@ -219,6 +226,7 @@ function beginMafiaNight(state) {
   state.nightActions = { mafiaVotes: {}, doctorTargets: {}, detectiveTargets: {} }
   state.nightEndVotes = {}
   state.dayVotes = {}
+  state.dayEndVotes = {}
   state.phaseEndsAt = Date.now() + state.config.nightMinutes * 60 * 1000
 }
 
@@ -246,11 +254,13 @@ function resolveMafiaNight(room, state) {
   if (killedId && !saved) state.aliveIds = state.aliveIds.filter((id) => id !== killedId)
   if (skipped) state.mafiaSkipUsed = true
   state.lastNight = { killedId: killedId && !saved ? killedId : null, saved, skipped }
+  state.lastDoctorTargets = { ...(state.nightActions?.doctorTargets || {}) }
   state.nightActions = { mafiaVotes: {}, doctorTargets: {}, detectiveTargets: {} }
   state.nightEndVotes = {}
   if (!finishMafiaIfNeeded(state)) {
     state.status = 'day'
     state.dayVotes = {}
+    state.dayEndVotes = {}
     state.phaseEndsAt = Date.now() + state.config.dayMinutes * 60 * 1000
   }
 }
@@ -263,6 +273,7 @@ function resolveMafiaDay(state) {
   state.lastEliminatedId = leaders.length === 1 ? leaders[0] : null
   if (state.lastEliminatedId) state.aliveIds = state.aliveIds.filter((id) => id !== state.lastEliminatedId)
   state.dayVotes = {}
+  state.dayEndVotes = {}
   if (!finishMafiaIfNeeded(state)) beginMafiaNight(state)
 }
 
@@ -405,11 +416,14 @@ function applyAction(room, playerId, action) {
         detective: Math.max(0, Math.min(Number(action.detectiveCount) || 0, 3)),
         yashka: Boolean(action.includeYashka) ? 1 : 0,
         allowMafiaSkip: action.allowMafiaSkip !== false,
+        allowDaySkip: action.allowDaySkip !== false,
         nightMinutes: Math.max(1, Math.min(Number(action.nightMinutes) || 5, 60)),
         dayMinutes: Math.max(1, Math.min(Number(action.dayMinutes) || 5, 60)),
       }
       const specialCount = requested.mafia + requested.doctor + requested.detective + requested.yashka
       if (specialCount >= room.players.length) return
+      const mafiaSideCount = requested.mafia + requested.yashka
+      if (mafiaSideCount >= room.players.length - mafiaSideCount) return
       const roleDeck = [
         ...Array(requested.mafia).fill('mafia'),
         ...Array(requested.doctor).fill('doctor'),
@@ -424,6 +438,7 @@ function applyAction(room, playerId, action) {
       room.players.forEach((player, index) => { state.assignments[player.id] = roles[index] })
       state.aliveIds = room.players.map((player) => player.id)
       state.investigationResults = {}
+      state.lastDoctorTargets = {}
       state.lastNight = null
       state.lastEliminatedId = null
       state.winner = null
@@ -443,18 +458,28 @@ function applyAction(room, playerId, action) {
       } else if (role === 'mafia' && state.assignments[targetId] !== 'mafia' && state.assignments[targetId] !== 'yashka') {
         state.nightActions.mafiaVotes[playerId] = targetId
       } else if (role === 'doctor') {
+        if (targetId === playerId && state.lastDoctorTargets?.[playerId] === playerId) return
         state.nightActions.doctorTargets[playerId] = targetId
       } else if (role === 'detective' && targetId !== playerId) {
         state.nightActions.detectiveTargets[playerId] = targetId
       } else {
         return
       }
-      if (mafiaNightReady(state)) resolveMafiaNight(room, state)
       return
     }
     if (action.type === 'voteEndMafiaNight' && state.status === 'night' && state.aliveIds?.includes(playerId)) {
+      if (!mafiaNightReady(state)) return
       state.nightEndVotes[playerId] = true
       if (Object.keys(state.nightEndVotes).length > state.aliveIds.length / 2) resolveMafiaNight(room, state)
+      return
+    }
+    if (action.type === 'voteEndMafiaDay' && state.status === 'day' && state.aliveIds?.includes(playerId)) {
+      if (!state.config.allowDaySkip) return
+      state.dayEndVotes[playerId] = true
+      if (Object.keys(state.dayEndVotes).length > state.aliveIds.length / 2) {
+        state.dayVotes = {}
+        resolveMafiaDay(state)
+      }
       return
     }
     if (action.type === 'mafiaDayVote' && state.status === 'day' && state.aliveIds?.includes(playerId)) {

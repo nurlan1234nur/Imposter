@@ -36,8 +36,8 @@ function publicAvalon(room, state, viewerId) {
   if (!state.assignments) return state
   const mine = state.assignments[viewerId]
   let known = []
-  if (mine?.team === 'evil') {
-    known = room.players.filter((player) => state.assignments[player.id]?.team === 'evil').map((player) => ({ id: player.id, name: player.name, hint: 'evil' }))
+  if (mine?.team === 'evil' && mine?.role !== 'oberon') {
+    known = room.players.filter((player) => state.assignments[player.id]?.team === 'evil' && state.assignments[player.id]?.role !== 'oberon').map((player) => ({ id: player.id, name: player.name, hint: 'evil' }))
   } else if (mine?.role === 'merlin') {
     known = room.players.filter((player) => state.assignments[player.id]?.team === 'evil' && state.assignments[player.id]?.role !== 'mordred').map((player) => ({ id: player.id, name: player.name, hint: 'evil' }))
   } else if (mine?.role === 'percival') {
@@ -47,6 +47,8 @@ function publicAvalon(room, state, viewerId) {
     ...state,
     assignments: state.status === 'finished' ? state.assignments : undefined,
     missionChoices: undefined,
+    missionVoteCount: Object.keys(state.missionChoices || {}).length,
+    myMissionVoted: Boolean(state.missionChoices?.[viewerId]),
     votes: Object.fromEntries(Object.keys(state.votes || {}).map((id) => [id, true])),
     me: mine,
     known,
@@ -62,11 +64,15 @@ function publicHitler(room, state, viewerId) {
     : []
   const hand = state.status === 'legislativePresident' && state.presidentId === viewerId
     ? state.legislativeHand : state.status === 'legislativeChancellor' && state.chancellorId === viewerId ? state.legislativeHand : []
+  const peekedPolicies = state.status === 'policyPeek' && state.presidentId === viewerId ? state.deck.slice(0, 3) : []
   return {
     ...state,
     deck: undefined,
     discard: undefined,
     legislativeHand: hand,
+    peekedPolicies,
+    investigations: undefined,
+    myInvestigations: (state.investigations || []).filter((item) => item.presidentId === viewerId),
     assignments: state.status === 'finished' ? state.assignments : undefined,
     votes: Object.fromEntries(Object.keys(state.votes || {}).map((id) => [id, true])),
     me: mine,
@@ -135,6 +141,7 @@ function startAvalon(room, state, action) {
   const evilRoles = ['assassin']
   if (action.morgana && evilRoles.length < evilCount) evilRoles.push('morgana')
   if (action.mordred && evilRoles.length < evilCount) evilRoles.push('mordred')
+  if (action.oberon && evilRoles.length < evilCount) evilRoles.push('oberon')
   while (evilRoles.length < evilCount) evilRoles.push('minion')
   const goodRoles = ['merlin']
   if (action.percival) goodRoles.push('percival')
@@ -207,6 +214,7 @@ function applyAvalon(room, playerId, action) {
     return
   }
   if (action.type === 'avalonAssassinate' && state.status === 'assassination' && state.assignments[playerId]?.role === 'assassin') {
+    if (action.targetId === playerId || !room.players.some((player) => player.id === action.targetId)) return
     state.assassinatedId = action.targetId
     state.winner = state.assignments[action.targetId]?.role === 'merlin' ? 'evil' : 'good'
     state.status = 'finished'
@@ -239,11 +247,21 @@ function hitlerWinner(state) {
 }
 
 function nextHitlerPresident(room, state) {
-  state.presidentId = nextAlive(room, state, state.presidentId)
+  if (state.specialElectionReturnId) {
+    state.presidentId = nextAlive(room, state, state.specialElectionReturnId)
+    state.specialElectionReturnId = null
+  } else state.presidentId = nextAlive(room, state, state.presidentId)
   state.chancellorId = null
   state.nomineeId = null
   state.votes = {}
   state.status = 'nomination'
+}
+
+function hitlerPower(playerCount, fascistPolicies) {
+  if (fascistPolicies >= 4) return 'execution'
+  if (playerCount <= 6) return fascistPolicies === 3 ? 'policyPeek' : null
+  if (playerCount <= 8) return fascistPolicies === 2 ? 'investigation' : fascistPolicies === 3 ? 'specialElection' : null
+  return fascistPolicies <= 2 ? 'investigation' : fascistPolicies === 3 ? 'specialElection' : null
 }
 
 function enactPolicy(room, state, policy) {
@@ -252,7 +270,8 @@ function enactPolicy(room, state, policy) {
   state.lastPolicy = policy
   const winner = hitlerWinner(state)
   if (winner) { state.status = 'finished'; state.winner = winner; return }
-  if (policy === 'fascist' && [4, 5].includes(state.fascistPolicies)) state.status = 'execution'
+  const power = policy === 'fascist' ? hitlerPower(room.players.length, state.fascistPolicies) : null
+  if (power) state.status = power
   else nextHitlerPresident(room, state)
 }
 
@@ -275,6 +294,8 @@ function applyHitler(room, playerId, action) {
     state.lastPresidentId = null
     state.lastChancellorId = null
     state.votes = {}
+    state.investigations = []
+    state.specialElectionReturnId = null
     state.winner = null
     return
   }
@@ -322,8 +343,9 @@ function applyHitler(room, playerId, action) {
   if (action.type === 'hitlerEnact' && state.status === 'legislativeChancellor' && state.chancellorId === playerId) {
     const index = Number(action.index)
     if (index < 0 || index >= state.legislativeHand.length) return
-    state.discard.push(state.legislativeHand.splice(index, 1)[0])
-    enactPolicy(room, state, state.legislativeHand.splice(0, 1)[0])
+    const enacted = state.legislativeHand.splice(index, 1)[0]
+    state.discard.push(...state.legislativeHand.splice(0))
+    enactPolicy(room, state, enacted)
     return
   }
   if (action.type === 'hitlerExecute' && state.status === 'execution' && state.presidentId === playerId) {
@@ -332,6 +354,28 @@ function applyHitler(room, playerId, action) {
     state.deadIds.push(target)
     if (state.assignments[target]?.role === 'hitler') { state.status = 'finished'; state.winner = 'liberal' }
     else nextHitlerPresident(room, state)
+    return
+  }
+  if (action.type === 'hitlerInvestigate' && state.status === 'investigation' && state.presidentId === playerId) {
+    const target = action.targetId
+    if (target === playerId || state.deadIds.includes(target) || !state.assignments[target]) return
+    state.investigations.push({ presidentId: playerId, targetId: target, party: state.assignments[target].team })
+    nextHitlerPresident(room, state)
+    return
+  }
+  if (action.type === 'hitlerPeekDone' && state.status === 'policyPeek' && state.presidentId === playerId) {
+    nextHitlerPresident(room, state)
+    return
+  }
+  if (action.type === 'hitlerSpecialPresident' && state.status === 'specialElection' && state.presidentId === playerId) {
+    const target = action.targetId
+    if (target === playerId || state.deadIds.includes(target) || !state.assignments[target]) return
+    state.specialElectionReturnId = playerId
+    state.presidentId = target
+    state.chancellorId = null
+    state.nomineeId = null
+    state.votes = {}
+    state.status = 'nomination'
     return
   }
   if (action.type === 'resetExtended' && playerId === room.hostId && state.status === 'finished') room.state = { status: 'setup' }

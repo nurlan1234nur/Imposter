@@ -18,11 +18,11 @@ const TEXT = {
     chooseGame: 'Choose a game', changeGame: 'Change game', createThis: 'Create this room', cancel: 'Cancel', setup: 'Game settings', setupHint: 'ROOM SETUP',
     hostOnly: 'Waiting for the host.', need: 'Required players', start: 'Start game', reset: 'Play again',
     yourRole: 'Your role', known: 'You know', good: 'Good', evil: 'Evil', liberal: 'Liberals', fascist: 'Fascists',
-    merlin: 'Merlin', percival: 'Percival', morgana: 'Morgana', mordred: 'Mordred', assassin: 'Assassin', minion: 'Minion of Mordred', loyal: 'Loyal servant', hitler: 'Hitler',
+    merlin: 'Merlin', percival: 'Percival', morgana: 'Morgana', mordred: 'Mordred', oberon: 'Oberon', assassin: 'Assassin', minion: 'Minion of Mordred', loyal: 'Loyal servant', hitler: 'Hitler',
     winner: 'Winner', select: 'Select', approve: 'Approve', reject: 'Reject', success: 'Success', fail: 'Fail',
-    leader: 'Leader', mission: 'Mission', proposeTeam: 'Propose team', waitingVotes: 'Waiting for votes', assassinate: 'Assassinate Merlin',
-    nominate: 'Nominate Chancellor', ja: 'JA!', nein: 'NEIN!', discard: 'Discard', enact: 'Enact', execute: 'Execute',
-    policyL: 'Liberal policy', policyF: 'Fascist policy', election: 'Election tracker', president: 'President', chancellor: 'Chancellor',
+    leader: 'Leader', mission: 'Mission', proposeTeam: 'Propose team', waitingVotes: 'Waiting for votes', assassinate: 'Assassinate Merlin', teamSize: 'Mission team', rejectTrack: 'Rejected teams', missionFourRule: 'Mission 4 needs 2 Fail cards.', chooseExact: 'Choose exactly', teamProposal: 'Proposed mission team', missionVote: 'Mission cards received',
+    nominate: 'Nominate Chancellor', ja: 'JA!', nein: 'NEIN!', discard: 'Discard', enact: 'Enact', execute: 'Execute', electPresident: 'Elect a President', votePresident: 'Vote for President', presidentVoteHelp: 'Choose who should become President.', waitingPresident: 'Waiting for the President election', waitingChancellor: 'Waiting for the President to nominate a Chancellor', votesReceived: 'Votes received',
+    policyL: 'Liberal policy', policyF: 'Fascist policy', election: 'Election tracker', president: 'President', chancellor: 'Chancellor', investigateParty: 'Investigate party', chooseNextPresident: 'Choose special President', peekPolicies: 'Top three policies', continueGame: 'Continue game', investigationResult: 'Investigation result',
     murderer: 'Murderer', detective: 'Detective', bystander: 'Bystander', kill: 'Secretly kill', guess: 'Accuse murderer', nextKill: 'Allow next kill', guesses: 'Guesses left',
     presidentRole: 'President', bomber: 'Bomber', member: 'Team member', blue: 'Blue', red: 'Red', room: 'Room', round: 'Round', shareColor: 'Share color', shareRole: 'Share full role', sendHostages: 'Exchange hostages',
     sheriff: 'Sheriff', deputy: 'Deputy', outlaw: 'Outlaw', renegade: 'Renegade', hp: 'HP', turn: 'Turn', endTurn: 'End turn', use: 'Use', respondMissed: 'Use MISSED!', takeHit: 'Take hit', target: 'Target', hand: 'Your hand',
@@ -31,11 +31,11 @@ const TEXT = {
     chooseGame: 'Тоглоом сонгох', changeGame: 'Тоглоом солих', createThis: 'Энэ тоглоомоор өрөө үүсгэх', cancel: 'Болих', setup: 'Тоглоомын тохиргоо', setupHint: 'ӨРӨӨНИЙ ТОХИРГОО',
     hostOnly: 'Host-ыг хүлээж байна.', need: 'Шаардлагатай тоглогч', start: 'Тоглоом эхлүүлэх', reset: 'Дахин тоглох',
     yourRole: 'Таны дүр', known: 'Таны мэдэх хүмүүс', good: 'Сайн тал', evil: 'Муу тал', liberal: 'Либералууд', fascist: 'Фашистууд',
-    merlin: 'Мерлин', percival: 'Персиваль', morgana: 'Моргана', mordred: 'Мордред', assassin: 'Ассасин', minion: 'Мордредийн хүн', loyal: 'Артурын үнэнч хүн', hitler: 'Гитлер',
+    merlin: 'Мерлин', percival: 'Персиваль', morgana: 'Моргана', mordred: 'Мордред', oberon: 'Оберон', assassin: 'Ассасин', minion: 'Мордредийн хүн', loyal: 'Артурын үнэнч хүн', hitler: 'Гитлер',
     winner: 'Ялагч', select: 'Сонгох', approve: 'Дэмжинэ', reject: 'Дэмжихгүй', success: 'Амжилт', fail: 'Сүйтгэх',
-    leader: 'Ахлагч', mission: 'Даалгавар', proposeTeam: 'Багийг санал болгох', waitingVotes: 'Саналуудыг хүлээж байна', assassinate: 'Мерлинийг устгах',
-    nominate: 'Канцлер нэр дэвшүүлэх', ja: 'ДЭМЖИНЭ', nein: 'ДЭМЖИХГҮЙ', discard: 'Хаях', enact: 'Батлах', execute: 'Устгах',
-    policyL: 'Либерал бодлого', policyF: 'Фашист бодлого', election: 'Сонгуулийн тоолуур', president: 'Ерөнхийлөгч', chancellor: 'Канцлер',
+    leader: 'Ахлагч', mission: 'Даалгавар', proposeTeam: 'Багийг санал болгох', waitingVotes: 'Саналуудыг хүлээж байна', assassinate: 'Мерлинийг устгах', teamSize: 'Mission баг', rejectTrack: 'Унасан багийн санал', missionFourRule: '4-р Mission-д 2 Fail хэрэгтэй.', chooseExact: 'Яг сонгох хүний тоо', teamProposal: 'Санал болгосон Mission баг', missionVote: 'Ирсэн Mission карт',
+    nominate: 'Канцлер нэр дэвшүүлэх', ja: 'ДЭМЖИНЭ', nein: 'ДЭМЖИХГҮЙ', discard: 'Хаях', enact: 'Батлах', execute: 'Устгах', electPresident: 'Ерөнхийлөгч сонгох', votePresident: 'Ерөнхийлөгчид санал өгөх', presidentVoteHelp: 'Ерөнхийлөгч болгох хүнээ сонгоно уу.', waitingPresident: 'Ерөнхийлөгчийн санал хураалтыг хүлээж байна', waitingChancellor: 'Ерөнхийлөгч Канцлер нэр дэвшүүлэхийг хүлээж байна', votesReceived: 'Ирсэн санал',
+    policyL: 'Либерал бодлого', policyF: 'Фашист бодлого', election: 'Сонгуулийн тоолуур', president: 'Ерөнхийлөгч', chancellor: 'Канцлер', investigateParty: 'Намыг шалгах', chooseNextPresident: 'Тусгай Ерөнхийлөгч сонгох', peekPolicies: 'Дээд 3 policy', continueGame: 'Тоглоом үргэлжлүүлэх', investigationResult: 'Шалгалтын хариу',
     murderer: 'Алуурчин', detective: 'Мөрдөгч', bystander: 'Энгийн хүн', kill: 'Нууцаар алах', guess: 'Алуурчныг таах', nextKill: 'Дараагийн аллагыг нээх', guesses: 'Таах эрх',
     presidentRole: 'Ерөнхийлөгч', bomber: 'Бөмбөгчин', member: 'Багийн гишүүн', blue: 'Цэнхэр', red: 'Улаан', room: 'Өрөө', round: 'Раунд', shareColor: 'Өнгөө харуулах', shareRole: 'Дүрээ бүтнээр харуулах', sendHostages: 'Барьцааны хүмүүсийг солих',
     sheriff: 'Шериф', deputy: 'Туслах', outlaw: 'Дээрэмчин', renegade: 'Урвагч', hp: 'Амь', turn: 'Ээлж', endTurn: 'Ээлж дуусгах', use: 'Ашиглах', respondMissed: 'MISSED! ашиглах', takeHit: 'Суманд оногдох', target: 'Бай', hand: 'Таны карт',
@@ -117,22 +117,33 @@ function Avalon({ room, playerId, action, lang }) {
   const s = room.state
   const [team, setTeam] = useState([])
   const [target, setTarget] = useState('')
-  const [specials, setSpecials] = useState({ percival: true, morgana: true, mordred: false })
+  const [specials, setSpecials] = useState({ percival: true, morgana: true, mordred: false, oberon: false })
   useEffect(() => { setTeam([]); setTarget('') }, [s.status, s.mission])
-  if (s.status === 'setup') return <SetupGate room={room} playerId={playerId} min={5} max={10} t={t} onStart={() => void action({ type: 'startAvalon', ...specials })}><div className="choice-row">{Object.keys(specials).map((key) => <button className={specials[key] ? 'active' : ''} key={key} onClick={() => setSpecials({ ...specials, [key]: !specials[key] })}>{key}</button>)}</div></SetupGate>
+  const evilSlots = (room.players.length <= 6 ? 2 : room.players.length <= 9 ? 3 : 4) - 1
+  const toggleSpecial = (key) => setSpecials((current) => {
+    if (key !== 'percival' && !current[key] && ['morgana', 'mordred', 'oberon'].filter((roleKey) => current[roleKey]).length >= evilSlots) return current
+    return { ...current, [key]: !current[key] }
+  })
+  if (s.status === 'setup') return <SetupGate room={room} playerId={playerId} min={5} max={10} t={t} onStart={() => void action({ type: 'startAvalon', ...specials })}><div className="choice-row">{Object.keys(specials).map((key) => <button className={specials[key] ? 'active' : ''} key={key} onClick={() => toggleSpecial(key)}>{t[key] || key}</button>)}</div></SetupGate>
   const role = s.me?.role
   const known = s.known?.map((item) => item.name).join(', ')
   if (s.status === 'finished') return <Finish room={room} playerId={playerId} action={action} winner={s.winner === 'good' ? t.good : t.evil} roles={Object.fromEntries(room.players.map((p) => [p.id, t[s.assignments?.[p.id]?.role] || s.assignments?.[p.id]?.role]))} t={t} />
   const leader = s.leaderId === playerId
-  const onToggle = (id) => setTeam((current) => current.includes(id) ? current.filter((item) => item !== id) : [...current, id])
-  return <div className="extended-game"><RoleCard title={t.yourRole} role={t[role] || role} detail={known ? `${t.known}: ${known}` : ''} /><div className="score-track"><b>{t.success}: {s.successes}</b><b>{t.fail}: {s.failures}</b><span>{t.mission} {s.mission + 1}</span></div><p className="host-note">{t.leader}: {nameOf(room, s.leaderId)}</p>
-    {s.status === 'teamBuilding' && leader && <><SelectGrid players={room.players} selected={team} onToggle={onToggle} /><button className="primary big" onClick={() => void action({ type: 'avalonPropose', teamIds: team })}>{t.proposeTeam}</button></>}
-    {s.status === 'teamBuilding' && !leader && <p className="online-note">{t.hostOnly}</p>}
-    {s.status === 'teamVote' && <><p className="online-note">{s.proposedTeam.map((id) => nameOf(room, id)).join(', ')}</p><div className="choice-row"><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'avalonVote', approve: true })}>{t.approve}</button><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'avalonVote', approve: false })}>{t.reject}</button></div></>}
-    {s.status === 'mission' && s.proposedTeam.includes(playerId) && <div className="choice-row"><button onClick={() => void action({ type: 'avalonMission', choice: 'success' })}>{t.success}</button>{s.me.team === 'evil' && <button onClick={() => void action({ type: 'avalonMission', choice: 'fail' })}>{t.fail}</button>}</div>}
-    {s.status === 'mission' && !s.proposedTeam.includes(playerId) && <p className="online-note">{t.waitingVotes}</p>}
-    {s.status === 'assassination' && role === 'assassin' && <><SelectGrid players={room.players.filter((p) => s.assignments?.[p.id]?.team !== 'evil')} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'avalonAssassinate', targetId: target })}>{t.assassinate}</button></>}
-    {s.status === 'assassination' && role !== 'assassin' && <p className="online-note">{t.waitingVotes}</p>}
+  const teamSizes = { 5: [2, 3, 2, 3, 3], 6: [2, 3, 4, 3, 4], 7: [2, 3, 3, 4, 4], 8: [3, 4, 4, 5, 5], 9: [3, 4, 4, 5, 5], 10: [3, 4, 4, 5, 5] }
+  const needed = teamSizes[room.players.length]?.[s.mission] || 0
+  const onToggle = (id) => setTeam((current) => current.includes(id) ? current.filter((item) => item !== id) : current.length < needed ? [...current, id] : current)
+  const voteCount = Object.keys(s.votes || {}).length
+  return <div className="extended-game avalon-game"><RoleCard title={t.yourRole} role={t[role] || role} detail={known ? `${t.known}: ${known}` : ''} />
+    <div className="avalon-board"><div className="avalon-missions">{Array.from({ length: 5 }, (_, index) => { const result = s.history?.find((item) => item.mission === index + 1); return <div className={`${result ? (result.success ? 'success' : 'fail') : ''} ${index === s.mission ? 'current' : ''}`} key={index}><small>M{index + 1}</small><strong>{result ? (result.success ? '✓' : '×') : teamSizes[room.players.length]?.[index]}</strong>{result && <span>{result.fails}F</span>}</div> })}</div><div className="avalon-reject-track"><span>{t.rejectTrack}</span><div>{Array.from({ length: 5 }, (_, index) => <i className={index < s.rejects ? 'filled' : ''} key={index} />)}</div><b>{s.rejects}/5</b></div></div>
+    <div className="avalon-leader"><span>♛</span><div><small>{t.leader}</small><strong>{nameOf(room, s.leaderId)}</strong></div><b>{t.mission} {s.mission + 1} · 👥 {needed}</b></div>
+    {room.players.length >= 7 && s.mission === 3 && <p className="avalon-warning">⚠ {t.missionFourRule}</p>}
+    {s.status === 'teamBuilding' && leader && <section className="avalon-action-card"><div className="avalon-action-head"><strong>{t.proposeTeam}</strong><small>{t.chooseExact}: {needed} · {team.length}/{needed}</small></div><SelectGrid players={room.players} selected={team} onToggle={onToggle} /><button className="primary big" disabled={team.length !== needed} onClick={() => void action({ type: 'avalonPropose', teamIds: team })}>{t.proposeTeam}</button></section>}
+    {s.status === 'teamBuilding' && !leader && <p className="host-note">{t.leader}: {nameOf(room, s.leaderId)}</p>}
+    {s.status === 'teamVote' && <section className="avalon-action-card"><div className="avalon-action-head"><strong>{t.teamProposal}</strong><small>{s.proposedTeam.map((id) => nameOf(room, id)).join(', ')}</small></div><div className="choice-row"><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'avalonVote', approve: true })}>{t.approve}</button><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'avalonVote', approve: false })}>{t.reject}</button></div><p className="vote-progress">{t.votesReceived}: {voteCount}/{room.players.length}</p></section>}
+    {s.status === 'mission' && s.proposedTeam.includes(playerId) && <section className="avalon-action-card"><div className="avalon-action-head"><strong>{t.mission} {s.mission + 1}</strong><small>{t.missionVote}: {s.missionVoteCount}/{s.proposedTeam.length}</small></div><div className="choice-row"><button disabled={s.myMissionVoted} onClick={() => void action({ type: 'avalonMission', choice: 'success' })}>{t.success}</button>{s.me.team === 'evil' && <button disabled={s.myMissionVoted} onClick={() => void action({ type: 'avalonMission', choice: 'fail' })}>{t.fail}</button>}</div></section>}
+    {s.status === 'mission' && !s.proposedTeam.includes(playerId) && <p className="host-note">{t.missionVote}: {s.missionVoteCount}/{s.proposedTeam.length}</p>}
+    {s.status === 'assassination' && role === 'assassin' && <section className="avalon-action-card"><div className="avalon-action-head"><strong>{t.assassinate}</strong><small>Merlin</small></div><SelectGrid players={room.players.filter((p) => p.id !== playerId)} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'avalonAssassinate', targetId: target })}>{t.assassinate}</button></section>}
+    {s.status === 'assassination' && role !== 'assassin' && <p className="host-note">{t.waitingVotes}</p>}
   </div>
 }
 
@@ -146,13 +157,39 @@ function SecretHitler({ room, playerId, action, lang }) {
   if (s.status === 'finished') return <Finish room={room} playerId={playerId} action={action} winner={s.winner === 'liberal' ? t.liberal : t.fascist} roles={Object.fromEntries(room.players.map((p) => [p.id, t[s.assignments?.[p.id]?.role] || s.assignments?.[p.id]?.role]))} t={t} />
   const alive = room.players.filter((p) => !s.deadIds?.includes(p.id))
   const targets = alive.filter((p) => p.id !== playerId)
-  return <div className="extended-game"><RoleCard title={t.yourRole} role={t[role] || role} detail={s.known?.map((item) => `${item.name} (${t[item.role] || item.role})`).join(', ')} /><div className="policy-board"><span className="liberal-policy">{t.policyL}: <b>{s.liberalPolicies}/5</b></span><span className="fascist-policy">{t.policyF}: <b>{s.fascistPolicies}/6</b></span><small>{t.election}: {s.electionTracker}/3</small></div><p className="host-note">{t.president}: {nameOf(room, s.presidentId)} {s.chancellorId ? ` · ${t.chancellor}: ${nameOf(room, s.chancellorId)}` : ''}</p>
-    {s.status === 'nomination' && s.presidentId === playerId && <><SelectGrid players={targets} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'hitlerNominate', targetId: target })}>{t.nominate}</button></>}
-    {s.status === 'election' && <div className="choice-row"><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'hitlerVote', approve: true })}>{t.ja}</button><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'hitlerVote', approve: false })}>{t.nein}</button></div>}
-    {s.status === 'legislativePresident' && s.presidentId === playerId && <PolicyHand cards={s.legislativeHand} label={t.discard} onPick={(index) => action({ type: 'hitlerDiscard', index })} t={t} />}
-    {s.status === 'legislativeChancellor' && s.chancellorId === playerId && <PolicyHand cards={s.legislativeHand} label={t.discard} onPick={(index) => action({ type: 'hitlerEnact', index })} t={t} />}
-    {s.status === 'execution' && s.presidentId === playerId && <><SelectGrid players={targets} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'hitlerExecute', targetId: target })}>{t.execute}</button></>}
-  </div>
+  const chancellorTargets = alive.filter((p) => p.id !== s.presidentId && p.id !== s.lastChancellorId && !(alive.length > 5 && p.id === s.lastPresidentId))
+  const governmentVoteCount = Object.keys(s.votes || {}).length
+  const known = s.known?.map((item) => `${item.name} (${t[item.role] || item.role})`).join(', ')
+  return (
+    <div className="extended-game hitler-game">
+      <RoleCard title={t.yourRole} role={t[role] || role} detail={known} />
+      <div className="hitler-policy-tracks"><PolicyTrack type="liberal" count={s.liberalPolicies} max={5} label={t.policyL} /><PolicyTrack type="fascist" count={s.fascistPolicies} max={6} label={t.policyF} /><div className="election-tracker"><span>{t.election}</span><div>{[0, 1, 2].map((slot) => <i className={slot < s.electionTracker ? 'filled' : ''} key={slot} />)}</div><b>{s.electionTracker}/3</b></div></div>
+
+      <div className="hitler-government"><div><small>{t.president}</small><strong>{nameOf(room, s.presidentId)}</strong></div><span>→</span><div><small>{t.chancellor}</small><strong>{s.chancellorId ? nameOf(room, s.chancellorId) : s.nomineeId ? nameOf(room, s.nomineeId) : '—'}</strong></div></div>
+
+      {s.status === 'nomination' && s.presidentId === playerId && <section className="hitler-election-card"><div className="hitler-phase-title"><span>🤝</span><div><strong>{t.nominate}</strong><small>{t.chancellor}</small></div></div><SelectGrid players={chancellorTargets} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'hitlerNominate', targetId: target })}>{t.nominate}</button></section>}
+      {s.status === 'nomination' && s.presidentId !== playerId && <p className="host-note">{t.waitingChancellor}</p>}
+
+      {s.status === 'election' && <section className="hitler-election-card"><p className="online-note">{t.president}: {nameOf(room, s.presidentId)} · {t.chancellor}: {nameOf(room, s.nomineeId)}</p><div className="choice-row"><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'hitlerVote', approve: true })}>{t.ja}</button><button disabled={s.votes?.[playerId]} onClick={() => void action({ type: 'hitlerVote', approve: false })}>{t.nein}</button></div><p className="vote-progress">{t.votesReceived}: {governmentVoteCount}/{alive.length}</p></section>}
+      {s.status === 'legislativePresident' && s.presidentId === playerId && <PolicyHand cards={s.legislativeHand} label={t.discard} onPick={(index) => action({ type: 'hitlerDiscard', index })} t={t} />}
+      {s.status === 'legislativePresident' && s.presidentId !== playerId && <p className="host-note">{t.president}: {nameOf(room, s.presidentId)}</p>}
+      {s.status === 'legislativeChancellor' && s.chancellorId === playerId && <PolicyHand cards={s.legislativeHand} label={t.enact} onPick={(index) => action({ type: 'hitlerEnact', index })} t={t} />}
+      {s.status === 'legislativeChancellor' && s.chancellorId !== playerId && <p className="host-note">{t.chancellor}: {nameOf(room, s.chancellorId)}</p>}
+      {s.status === 'investigation' && s.presidentId === playerId && <section className="hitler-election-card"><div className="hitler-phase-title"><span>🔎</span><div><strong>{t.investigateParty}</strong><small>{t.select}</small></div></div><SelectGrid players={targets} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'hitlerInvestigate', targetId: target })}>{t.investigateParty}</button></section>}
+      {s.status === 'investigation' && s.presidentId !== playerId && <p className="host-note">{t.president}: {nameOf(room, s.presidentId)} · {t.investigateParty}</p>}
+      {s.status === 'specialElection' && s.presidentId === playerId && <section className="hitler-election-card"><div className="hitler-phase-title"><span>⭐</span><div><strong>{t.chooseNextPresident}</strong><small>{t.select}</small></div></div><SelectGrid players={targets} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'hitlerSpecialPresident', targetId: target })}>{t.chooseNextPresident}</button></section>}
+      {s.status === 'specialElection' && s.presidentId !== playerId && <p className="host-note">{t.chooseNextPresident}</p>}
+      {s.status === 'policyPeek' && s.presidentId === playerId && <section className="hitler-election-card"><div className="hitler-phase-title"><span>👁️</span><div><strong>{t.peekPolicies}</strong><small>{t.president}</small></div></div><div className="peek-policy-row">{s.peekedPolicies?.map((policy, index) => <span className={policy} key={`${policy}-${index}`}>{policy === 'liberal' ? t.policyL : t.policyF}</span>)}</div><button className="primary big" onClick={() => void action({ type: 'hitlerPeekDone' })}>{t.continueGame}</button></section>}
+      {s.status === 'policyPeek' && s.presidentId !== playerId && <p className="host-note">{t.president}: {nameOf(room, s.presidentId)} · {t.peekPolicies}</p>}
+      {s.status === 'execution' && s.presidentId === playerId && <section className="hitler-election-card"><div className="hitler-phase-title"><span>🎯</span><div><strong>{t.execute}</strong><small>{t.select}</small></div></div><SelectGrid players={targets} selected={target} single onToggle={(id) => setTarget(id)} /><button className="primary big" disabled={!target} onClick={() => void action({ type: 'hitlerExecute', targetId: target })}>{t.execute}</button></section>}
+      {s.status === 'execution' && s.presidentId !== playerId && <p className="host-note">{t.president}: {nameOf(room, s.presidentId)} · {t.execute}</p>}
+      {s.myInvestigations?.length > 0 && <div className="hitler-investigations"><strong>{t.investigationResult}</strong>{s.myInvestigations.map((item, index) => <span key={`${item.targetId}-${index}`}>{nameOf(room, item.targetId)} — {item.party === 'liberal' ? t.liberal : t.fascist}</span>)}</div>}
+    </div>
+  )
+}
+
+function PolicyTrack({ type, count, max, label }) {
+  return <div className={`policy-track ${type}`}><div><strong>{label}</strong><b>{count}/{max}</b></div><div className="policy-slots">{Array.from({ length: max }, (_, index) => <span className={index < count ? 'filled' : ''} key={index}>{index < count ? '◆' : ''}</span>)}</div></div>
 }
 
 function PolicyHand({ cards = [], label, onPick, t }) {
