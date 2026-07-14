@@ -15,7 +15,7 @@ export const GAME_CATALOG = [
 
 const TEXT = {
   en: {
-    chooseGame: 'Choose a game', changeGame: 'Change game', createThis: 'Create this room', cancel: 'Cancel',
+    chooseGame: 'Choose a game', changeGame: 'Change game', createThis: 'Create this room', cancel: 'Cancel', setup: 'Game settings', setupHint: 'ROOM SETUP',
     hostOnly: 'Waiting for the host.', need: 'Required players', start: 'Start game', reset: 'Play again',
     yourRole: 'Your role', known: 'You know', good: 'Good', evil: 'Evil', liberal: 'Liberals', fascist: 'Fascists',
     merlin: 'Merlin', percival: 'Percival', morgana: 'Morgana', mordred: 'Mordred', assassin: 'Assassin', minion: 'Minion of Mordred', loyal: 'Loyal servant', hitler: 'Hitler',
@@ -28,7 +28,7 @@ const TEXT = {
     sheriff: 'Sheriff', deputy: 'Deputy', outlaw: 'Outlaw', renegade: 'Renegade', hp: 'HP', turn: 'Turn', endTurn: 'End turn', use: 'Use', respondMissed: 'Use MISSED!', takeHit: 'Take hit', target: 'Target', hand: 'Your hand',
   },
   mn: {
-    chooseGame: 'Тоглоом сонгох', changeGame: 'Тоглоом солих', createThis: 'Энэ тоглоомоор өрөө үүсгэх', cancel: 'Болих',
+    chooseGame: 'Тоглоом сонгох', changeGame: 'Тоглоом солих', createThis: 'Энэ тоглоомоор өрөө үүсгэх', cancel: 'Болих', setup: 'Тоглоомын тохиргоо', setupHint: 'ӨРӨӨНИЙ ТОХИРГОО',
     hostOnly: 'Host-ыг хүлээж байна.', need: 'Шаардлагатай тоглогч', start: 'Тоглоом эхлүүлэх', reset: 'Дахин тоглох',
     yourRole: 'Таны дүр', known: 'Таны мэдэх хүмүүс', good: 'Сайн тал', evil: 'Муу тал', liberal: 'Либералууд', fascist: 'Фашистууд',
     merlin: 'Мерлин', percival: 'Персиваль', morgana: 'Моргана', mordred: 'Мордред', assassin: 'Ассасин', minion: 'Мордредийн хүн', loyal: 'Артурын үнэнч хүн', hitler: 'Гитлер',
@@ -78,9 +78,13 @@ function SetupGate({ room, playerId, min, max, onStart, children, t }) {
   const host = room.hostId === playerId
   const valid = room.players.length >= min && (!max || room.players.length <= max)
   return (
-    <div className="extended-setup">
-      <p className={valid ? 'online-note' : 'error'}>{t.need}: {min}{max ? `–${max}` : '+'}</p>
-      {host ? <>{children}<button className="primary big" disabled={!valid} onClick={onStart}>{t.start}</button></> : <p className="host-note">{t.hostOnly}</p>}
+    <div className="extended-setup universal-game-setup">
+      <div className="universal-setup-title"><span>⚙️</span><div><small>{t.setupHint}</small><h2>{t.setup}</h2></div></div>
+      <section className="universal-setup-card">
+        <div className="required-players"><span>{t.need}</span><strong>{min}{max ? `–${max}` : '+'}</strong></div>
+        {host ? children : <p className="host-note">{t.hostOnly}</p>}
+      </section>
+      {host && <div className="universal-setup-footer"><button className="primary big" disabled={!valid} onClick={onStart}>🌙 {t.start}</button></div>}
     </div>
   )
 }

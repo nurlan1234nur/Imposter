@@ -1492,6 +1492,37 @@ h1, h2, h3, .logo, .room-code, .card-word, .starter-name, .stepper-value { font-
 .reveal-card, .starter-card, .result-block, .secret-card { border-color: rgba(167,139,250,.12); border-radius: 18px; background: radial-gradient(circle at top,rgba(124,58,237,.18),transparent 62%),#0c1428; }
 .cover { border-color: rgba(167,139,250,.1); border-radius: 18px; background: linear-gradient(160deg,#101b36,#0c1428); }
 
+/* Unified create/setup pages from the new reference */
+.mafia-setup-screen, .universal-game-setup { display: grid; gap: 14px; padding-bottom: 88px; }
+.mafia-setup-title, .universal-setup-title { display: flex; align-items: center; gap: 11px; padding: 5px 0 2px; }
+.mafia-setup-title > span, .universal-setup-title > span { width: 42px; height: 42px; display: grid; place-items: center; border: 1px solid rgba(124,58,237,.25); border-radius: 12px; background: rgba(124,58,237,.12); font-size: 1.15rem; }
+.mafia-setup-title > div, .universal-setup-title > div { display: grid; gap: 2px; }
+.mafia-setup-title small, .universal-setup-title small { color: #7886a8; font-size: .56rem; font-weight: 700; letter-spacing: .1em; }
+.mafia-setup-title h2, .universal-setup-title h2 { margin: 0; color: #eef2ff; font-size: 1.08rem; }
+.mafia-setup-card, .universal-setup-card { overflow: hidden; padding: 16px; border: 1px solid rgba(167,139,250,.08); border-radius: 16px; background: #0c1428; }
+.mafia-setup-card > h3 { margin: 0 0 8px; color: #7886a8; font-size: .62rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.mafia-setup-row, .mafia-rule-row { min-height: 58px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,.045); }
+.mafia-setup-card > :last-child, .universal-setup-card > :last-child { border-bottom: 0; }
+.mafia-role-label { min-width: 0; display: flex; align-items: center; gap: 9px; }
+.mafia-role-label > span { flex: 0 0 auto; font-size: 1rem; }
+.mafia-role-label > div, .mafia-rule-row > div { min-width: 0; display: grid; gap: 3px; }
+.mafia-role-label strong, .mafia-rule-row strong { color: #c7d2fe; font-size: .78rem; font-weight: 600; }
+.mafia-role-label small, .mafia-rule-row small { max-width: 220px; color: #7886a8; font-size: .61rem; line-height: 1.35; }
+.mafia-mini-stepper { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+.mafia-mini-stepper button { width: 32px; height: 32px; display: grid; place-items: center; border: 1px solid rgba(167,139,250,.12); border-radius: 9px; background: #101b36; color: #a78bfa; font-size: 1rem; }
+.mafia-mini-stepper button:disabled { opacity: .3; }
+.mafia-mini-stepper b { min-width: 34px; color: #eef2ff; font-family: 'DM Mono',monospace; font-size: .78rem; text-align: center; }
+.setup-switch { width: 44px; height: 24px; flex: 0 0 44px; position: relative; padding: 0; border: 0; border-radius: 999px; background: rgba(255,255,255,.1); }
+.setup-switch span { position: absolute; top: 3px; left: 3px; width: 18px; height: 18px; border-radius: 50%; background: white; box-shadow: 0 1px 4px rgba(0,0,0,.3); transition: left .2s; }
+.setup-switch.on { background: linear-gradient(135deg,#7c3aed,#6366f1); }
+.setup-switch.on span { left: 23px; }
+.required-players { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 11px 0; color: #7886a8; font-size: .72rem; }
+.required-players strong { padding: 5px 9px; border: 1px solid rgba(124,58,237,.2); border-radius: 8px; background: rgba(124,58,237,.1); color: #a78bfa; font-family: 'DM Mono',monospace; }
+.universal-setup-card .choice-row { margin-top: 8px; }
+.universal-setup-card .choice-row button { min-height: 42px; text-transform: capitalize; }
+.mafia-setup-footer, .universal-setup-footer { position: fixed; z-index: 35; bottom: 0; left: 50%; width: min(480px,100%); transform: translateX(-50%); padding: 14px 20px max(16px,env(safe-area-inset-bottom)); border-top: 1px solid rgba(167,139,250,.1); background: rgba(6,10,24,.95); backdrop-filter: blur(20px); }
+.mafia-setup-footer .primary, .universal-setup-footer .primary { width: 100%; }
+
 @media (max-width: 390px) {
   .profile-chip strong { display: none; }
   .profile-chip { padding-right: 6px; }

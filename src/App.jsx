@@ -1128,28 +1128,29 @@ function OnlineMafia({ room, playerId, action, ot }) {
 
   if (state.status === 'setup') {
     return (
-      <div className="online-panel mafia-panel">
-        <h2>{ot.mafiaGame}</h2>
+      <div className="online-panel mafia-panel mafia-setup-screen">
+        <div className="mafia-setup-title"><span>🎭</span><div><small>{ot.mafiaGame}</small><h2>{ot.setup || 'Тохиргоо'}</h2></div></div>
         {isHost ? (
           <>
-            <div className="mafia-config">
-              <Stepper label={ot.mafiaCount} value={mafiaCount} min={1} max={Math.max(1, room.players.length - 1)} onChange={setMafiaCount} />
-              <Stepper label={ot.doctorCount} value={doctorCount} min={0} max={3} onChange={setDoctorCount} />
-              <Stepper label={ot.detectiveCount} value={detectiveCount} min={0} max={3} onChange={setDetectiveCount} />
-              <Stepper label={ot.nightDuration} value={nightMinutes} min={1} max={60} onChange={setNightMinutes} />
-              <Stepper label={ot.dayDuration} value={dayMinutes} min={1} max={60} onChange={setDayMinutes} />
-              <Toggle label={ot.includeYashka} desc={ot.yashkaDesc} checked={includeYashka} onChange={setIncludeYashka} />
-              <Toggle label={ot.allowMafiaSkip} desc={ot.mafiaSkipDesc} checked={allowMafiaSkip} onChange={setAllowMafiaSkip} />
-            </div>
+            <section className="mafia-setup-card">
+              <h3>{ot.roleCount || 'Дүрүүдийн тоо'}</h3>
+              <MafiaSetupRow emoji="🔴" label={ot.mafiaCount} description="Хотын эсрэг нууц баг" value={mafiaCount} min={1} max={Math.max(1, room.players.length - 1)} onChange={setMafiaCount} />
+              <MafiaSetupRow emoji="🔵" label={ot.detectiveCount} description="Шөнө нэг хүнийг шалгана" value={detectiveCount} min={0} max={3} onChange={setDetectiveCount} />
+              <MafiaSetupRow emoji="🟢" label={ot.doctorCount} description="Шөнө нэг хүнийг хамгаална" value={doctorCount} min={0} max={3} onChange={setDoctorCount} />
+              <div className="mafia-rule-row"><div className="mafia-role-label"><span>🟡</span><div><strong>{ot.includeYashka}</strong><small>{ot.yashkaDesc}</small></div></div><button className={`setup-switch ${includeYashka ? 'on' : ''}`} onClick={() => setIncludeYashka(!includeYashka)}><span /></button></div>
+            </section>
+            <section className="mafia-setup-card">
+              <h3>{ot.timeSettings || 'Хугацааны тохиргоо'}</h3>
+              <MafiaSetupRow label={ot.dayDuration} value={dayMinutes} suffix="мин" min={1} max={60} onChange={setDayMinutes} />
+              <MafiaSetupRow label={ot.nightDuration} value={nightMinutes} suffix="мин" min={1} max={60} onChange={setNightMinutes} />
+            </section>
+            <section className="mafia-setup-card">
+              <h3>{ot.specialRules || 'Тусгай дүрэм'}</h3>
+              <div className="mafia-rule-row"><div><strong>{ot.allowMafiaSkip}</strong><small>{ot.mafiaSkipDesc}</small></div><button className={`setup-switch ${allowMafiaSkip ? 'on' : ''}`} onClick={() => setAllowMafiaSkip(!allowMafiaSkip)}><span /></button></div>
+            </section>
             {room.players.length < 5 && <p className="error">{ot.mafiaMinPlayers}</p>}
             {room.players.length >= 5 && specialCount >= room.players.length && <p className="error">{ot.invalidRoles}</p>}
-            <button
-              className="primary big"
-              disabled={invalidSetup}
-              onClick={() => void action({ type: 'startMafia', mafiaCount, doctorCount, detectiveCount, includeYashka, allowMafiaSkip, nightMinutes, dayMinutes })}
-            >
-              {ot.startMafia}
-            </button>
+            <div className="mafia-setup-footer"><button className="primary big" disabled={invalidSetup} onClick={() => void action({ type: 'startMafia', mafiaCount, doctorCount, detectiveCount, includeYashka, allowMafiaSkip, nightMinutes, dayMinutes })}>🌙 {ot.startMafia}</button></div>
           </>
         ) : <p className="host-note">{room.players.length < 5 ? ot.mafiaMinPlayers : ot.waitingHost}</p>}
       </div>
@@ -1261,6 +1262,15 @@ function OnlineMafia({ room, playerId, action, ot }) {
   )
 }
 
+function MafiaSetupRow({ emoji, label, description, value, suffix = '', min, max, onChange }) {
+  return (
+    <div className="mafia-setup-row">
+      <div className="mafia-role-label">{emoji && <span>{emoji}</span>}<div><strong>{label}</strong>{description && <small>{description}</small>}</div></div>
+      <div className="mafia-mini-stepper"><button disabled={value <= min} onClick={() => onChange(value - 1)}>−</button><b>{value}{suffix ? ` ${suffix}` : ''}</b><button disabled={value >= max} onClick={() => onChange(value + 1)}>+</button></div>
+    </div>
+  )
+}
+
 function OnlineImposter({ room, playerId, lang, action, ot }) {
   const [imposterCount, setImposterCount] = useState(1)
   const [targetId, setTargetId] = useState('')
@@ -1287,12 +1297,12 @@ function OnlineImposter({ room, playerId, lang, action, ot }) {
 
   if (state.status === 'setup') {
     return (
-      <div className="online-panel">
-        <h2>{ot.imposterGame}</h2>
+      <div className="online-panel universal-game-setup imposter-room-setup">
+        <div className="universal-setup-title"><span>👾</span><div><small>{lang === 'mn' ? 'ӨРӨӨНИЙ ТОХИРГОО' : 'ROOM SETUP'}</small><h2>{ot.imposterGame}</h2></div></div>
         {isHost ? (
           <>
-            <Stepper label={ot.imposters} value={imposterCount} min={1} max={Math.max(1, room.players.length - 1)} onChange={setImposterCount} />
-            <button className="primary big" disabled={room.players.length < 3} onClick={startRound}>{ot.startOnlineRound}</button>
+            <section className="universal-setup-card"><MafiaSetupRow emoji="🕵️" label={ot.imposters} description={lang === 'mn' ? 'Нуугдсан тоглогчдын тоо' : 'Number of hidden players'} value={imposterCount} min={1} max={Math.max(1, room.players.length - 1)} onChange={setImposterCount} /><div className="required-players"><span>{lang === 'mn' ? 'Шаардлагатай тоглогч' : 'Required players'}</span><strong>3–12</strong></div></section>
+            <div className="universal-setup-footer"><button className="primary big" disabled={room.players.length < 3} onClick={startRound}>🌙 {ot.startOnlineRound}</button></div>
           </>
         ) : <p className="host-note">{ot.waitingHost}</p>}
       </div>
