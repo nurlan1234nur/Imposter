@@ -46,12 +46,13 @@ const TEXT = {
 const tFor = (lang) => ({ ...TEXT.en, ...(TEXT[lang] || {}) })
 const nameOf = (room, id) => room.players.find((player) => player.id === id)?.name || '—'
 
-export function GameCatalog({ lang, selected, onSelect, compact = false, onlineOnly = false }) {
+export function GameCatalog({ lang, selected, onSelect, compact = false, onlineOnly = false, games: suppliedGames, featured = false, hideTitle = false }) {
   const t = tFor(lang)
-  const games = onlineOnly ? GAME_CATALOG.filter((game) => !game.offline) : GAME_CATALOG
+  const sourceGames = suppliedGames || GAME_CATALOG
+  const games = onlineOnly ? sourceGames.filter((game) => !game.offline) : sourceGames
   return (
-    <section className={`game-catalog ${compact ? 'compact' : ''}`}>
-      {!compact && <h2>{t.chooseGame}</h2>}
+    <section className={`game-catalog ${compact ? 'compact' : ''} ${featured ? 'featured' : ''}`}>
+      {!compact && !hideTitle && !featured && <h2>{t.chooseGame}</h2>}
       <div className="game-card-grid">
         {games.map((game) => (
           <button

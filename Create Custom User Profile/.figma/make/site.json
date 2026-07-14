@@ -1,0 +1,10 @@
+{
+  "description": "Connect with like-minded individuals to share and explore unique ideas and preferences in a visually appealing and user-friendly platform.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

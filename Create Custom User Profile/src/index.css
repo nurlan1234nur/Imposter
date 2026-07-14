@@ -1,0 +1,58 @@
+@import url('https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700;900&family=DM+Mono:ital,wght@0,400;0,500;1,400&display=swap');
+@import 'tailwindcss';
+
+@theme {
+  --color-bg: #060A18;
+  --color-bg2: #080D1F;
+  --color-card: #0C1428;
+  --color-card2: #101B36;
+  --color-card3: #162040;
+  --color-primary: #7C3AED;
+  --color-primary-hover: #6D28D9;
+  --color-primary-light: #A78BFA;
+  --color-primary-glow: rgba(124, 58, 237, 0.35);
+  --color-accent: #6366F1;
+  --color-accent2: #818CF8;
+  --color-txt: #EEF2FF;
+  --color-txt2: #C7D2FE;
+  --color-muted: #7886A8;
+  --color-border: rgba(167, 139, 250, 0.12);
+  --color-border2: rgba(255, 255, 255, 0.06);
+  --color-star: rgba(167, 139, 250, 0.6);
+  --font-sans: 'Golos Text', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+  --radius-card: 16px;
+  --radius-btn: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: var(--font-sans);
+  background: var(--color-bg);
+  color: var(--color-txt);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body {
+  overflow-x: hidden;
+}
+
+::-webkit-scrollbar { width: 0; height: 0; }
+* { scrollbar-width: none; }
+
+input, button, select, textarea {
+  font-family: var(--font-sans);
+}
+
+::selection {
+  background: var(--color-primary);
+  color: #fff;
+}

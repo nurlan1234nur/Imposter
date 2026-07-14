@@ -424,8 +424,9 @@ function Setup({ t, ot, lang, setLang, playerCount, setCount, imposterCount, set
   const hasDup = new Set(resolved).size !== resolved.length
   const blocked = imposterTooMany || hasDup
   return (
-    <div className="screen setup">
+    <div className="screen setup offline-setup-screen">
       <header className="brand">
+        <button className="offline-exit" aria-label={ot.onlineRoom} onClick={onOnline}>←</button>
         <span className="local-mode-badge">📱 OFFLINE</span>
         <h1 className="logo">{t.title}</h1>
         <p className="tagline">{t.subtitle}</p>
@@ -476,11 +477,8 @@ function Setup({ t, ot, lang, setLang, playerCount, setCount, imposterCount, set
         </div>
       </div>
 
-      <button className="primary big" onClick={onStart} disabled={blocked}>
+      <button className="primary big offline-start" onClick={onStart} disabled={blocked}>
         {t.start}
-      </button>
-      <button className="ghost" onClick={onOnline}>
-        {ot.onlineRoom}
       </button>
     </div>
   )
@@ -683,6 +681,14 @@ function OnlineRoom({ lang, setLang, onOffline }) {
   const [error, setError] = useState('')
   const [selectedGame, setSelectedGame] = useState('')
   const [showGamePicker, setShowGamePicker] = useState(false)
+  const [showSettings, setShowSettings] = useState(false)
+  const [gameCategory, setGameCategory] = useState('all')
+  const joinSectionRef = useRef(null)
+
+  function updateName(value) {
+    setName(value)
+    localStorage.setItem('imposter-name', value)
+  }
 
   useEffect(() => {
     if (!room?.code || !playerId) return undefined
@@ -750,6 +756,19 @@ function OnlineRoom({ lang, setLang, onOffline }) {
   }
 
   const selectedGameInfo = GAME_CATALOG.find((game) => game.id === selectedGame)
+  const featuredGames = GAME_CATALOG.filter((game) => ['imposter', 'mafia', 'avalon'].includes(game.id))
+  const catalogGames = GAME_CATALOG.filter((game) => {
+    if (gameCategory === 'all') return true
+    if (gameCategory === 'offline') return game.offline
+    if (gameCategory === 'online') return !game.offline
+    if (gameCategory === 'party') return ['offline-imposter', 'imposter', 'wink', 'twoRooms', 'bang'].includes(game.id)
+    return ['mafia', 'avalon', 'hitler', 'planes', 'number'].includes(game.id)
+  })
+  const detailSteps = selectedGame === 'mafia'
+    ? ['Шөнө мафиа, эмч, мөрдөгч нууц үйлдлээ хийнэ', 'Өдөр бүгд ярилцаж сэжигтэй хүнээ сонгоно', 'Олонхийн саналаар нэг тоглогч хасагдана', 'Бүх мафийг олбол хотынхон ялна']
+    : selectedGame === 'imposter'
+      ? ['Тоглогч бүр өрөөнд өөрийн төхөөрөмжөөр нэгдэнэ', 'Нууц үг эсвэл Imposter дүрээ харна', 'Үгээ хэлэлгүй тайлбарлаж, бие биеэ шинжинэ', 'Санал хурааж Imposter-ийг олно']
+      : ['Өрөөгөө үүсгээд найзууддаа кодоо илгээнэ', 'Бүх тоглогч нэгдсэний дараа host эхлүүлнэ', 'Нууц дүр болон зорилгоо анхааралтай уншина', 'Багийнхаа ялах нөхцөлийг биелүүлнэ']
 
   if (!room) {
     if (selectedGameInfo) {
@@ -761,6 +780,7 @@ function OnlineRoom({ lang, setLang, onOffline }) {
               style={{ '--game-from': selectedGameInfo.from, '--game-to': selectedGameInfo.to, '--game-color': selectedGameInfo.color }}
             >
               <button className="icon-back game-detail-back" onClick={() => setSelectedGame('')}>←</button>
+              <button className="icon-back game-detail-settings" aria-label="Settings" onClick={() => setShowSettings(true)}>⚙</button>
               <div className="game-detail-heading">
                 <span className="game-detail-icon">{selectedGameInfo.icon}</span>
                 <div><small>{lang === 'mn' ? 'ОНЛАЙН ТОГЛООМ' : 'ONLINE GAME'}</small><h1>{selectedGameInfo.name}</h1></div>
@@ -776,18 +796,17 @@ function OnlineRoom({ lang, setLang, onOffline }) {
                 <small>{lang === 'mn' ? 'ТОГЛООМЫН ТУХАЙ' : 'ABOUT THIS GAME'}</small>
                 <p>{selectedGameInfo.description}</p>
               </section>
-              <section className="lobby-action-card game-detail-form">
-                <div className="action-card-title"><span>🏠</span><div><strong>{ot.createRoom}</strong><small>{lang === 'mn' ? 'Нэрээ оруулаад шинэ өрөө нээнэ үү' : 'Enter your name to open a new room'}</small></div></div>
-                <label className="field">
-                  <span className="field-label">{ot.yourName}</span>
-                  <input value={name} maxLength={24} placeholder={ot.playerName} onChange={(e) => setName(e.target.value)} />
-                </label>
+              <section className="game-detail-description game-how-to">
+                <small>{lang === 'mn' ? 'ХЭРХЭН ТОГЛОХ ВЭ' : 'HOW TO PLAY'}</small>
+                <ol>{detailSteps.map((step, index) => <li key={step}><span>{index + 1}</span><p>{step}</p></li>)}</ol>
               </section>
+              <div className="game-player-summary"><span>👤</span><div><small>{ot.yourName}</small><strong>{name.trim() || ot.playerName}</strong></div><button onClick={() => setShowSettings(true)}>⚙</button></div>
               {error && <p className="error">{error}</p>}
             </main>
             <div className="game-detail-cta">
               <button className="primary big" onClick={() => void createRoom()}>{selectedGameInfo.icon} {ot.createRoom}</button>
             </div>
+            {showSettings && <LobbySettings lang={lang} setLang={setLang} name={name} setName={updateName} ot={ot} onClose={() => setShowSettings(false)} />}
           </div>
         </div>
       )
@@ -797,41 +816,37 @@ function OnlineRoom({ lang, setLang, onOffline }) {
       <div className="app online-app online-lobby">
         <div className="screen setup lobby-screen">
           <header className="lobby-topbar">
-            <span className="topbar-spacer" />
-            <div className="lobby-brand"><span>🌙</span><strong>{ot.onlineRoom}</strong></div>
-            <span className="topbar-spacer" />
+            <div className="lobby-brand"><SejigLogo /><strong>Сэжиг</strong></div>
+            <button className="profile-chip" onClick={() => setShowSettings(true)}><span>{name.trim().charAt(0).toUpperCase() || 'Т'}</span><strong>{name.trim() || ot.playerName}</strong></button>
+            <button className="topbar-settings" aria-label="Settings" onClick={() => setShowSettings(true)}>⚙</button>
           </header>
-          <section className="lobby-hero">
+          <section className="lobby-hero reference-hero" ref={joinSectionRef}>
             <div className="hero-stars" />
-            <div className="hero-moon">☾</div>
             <div className="hero-copy">
-              <small>✦ НИЙГМИЙН ДЕДУКЦ ТОГЛООМ ✦</small>
-              <h1>Найзуудтайгаа<br /><span>нууц тоглоорой</span></h1>
-              <p>{ot.createSubtitle}</p>
+              <small>{lang === 'mn' ? 'Сайн уу' : 'Welcome'} 👋</small>
+              <h1>{lang === 'mn' ? 'Тоглоом эхлүүлэх үү?' : 'Ready to play?'}</h1>
+              <p>{lang === 'mn' ? 'Кодоор нэгдэх эсвэл шинэ өрөө үүсгэ' : 'Join with a code or create a new room'}</p>
+              <div className="hero-quick-join">
+                <input value={joinCode} maxLength={6} placeholder={lang === 'mn' ? 'КОДОО ОРУУЛ' : 'ROOM CODE'} onChange={(e) => setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} />
+                <button disabled={!joinCode.trim()} onClick={() => void joinRoom()}>{ot.joinRoom}</button>
+              </div>
             </div>
-            <div className="city-silhouette" />
-          </section>
-          <div className="lang-pills">
-            {LANGS.map((l) => (
-              <button key={l.code} className={`pill ${lang === l.code ? 'active' : ''}`} onClick={() => setLang(l.code)}>
-                <span className="flag">{l.flag}</span> {l.label}
-              </button>
-            ))}
-          </div>
-          <section className="lobby-action-card join-room-card quick-join-card">
-            <div className="action-card-title"><span>🔑</span><div><strong>{ot.joinRoom}</strong><small>{lang === 'mn' ? 'Найзаас авсан 6 тэмдэгтийн код' : 'Enter the 6-character room code'}</small></div></div>
-            <label className="field">
-              <span className="field-label">{ot.yourName}</span>
-              <input value={name} maxLength={24} placeholder={ot.playerName} onChange={(e) => setName(e.target.value)} />
-            </label>
-            <label className="field code-field">
-              <span className="field-label">{ot.roomCode}</span>
-              <input value={joinCode} maxLength={6} placeholder="ABC123" onChange={(e) => setJoinCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ''))} />
-            </label>
-            <button className="ghost join-cta" disabled={!joinCode.trim()} onClick={() => void joinRoom()}>🔑 {ot.joinRoom}</button>
           </section>
           {error && <p className="error">{error}</p>}
-          <GameCatalog lang={lang} selected="" onSelect={selectLobbyGame} />
+          <section className="featured-section"><h2>{lang === 'mn' ? 'Онцлох тоглоом' : 'Featured games'}</h2><GameCatalog featured games={featuredGames} lang={lang} selected="" onSelect={selectLobbyGame} /></section>
+          <section className="catalog-section">
+            <h2>{lang === 'mn' ? 'Бүх тоглоом' : 'All games'}</h2>
+            <div className="category-pills">
+              {[['all', 'Бүгд'], ['online', 'Онлайн'], ['offline', 'Офлайн'], ['party', 'Пати'], ['strategy', 'Стратеги']].map(([id, label]) => <button key={id} className={gameCategory === id ? 'active' : ''} onClick={() => setGameCategory(id)}>{label}</button>)}
+            </div>
+            <GameCatalog games={catalogGames} hideTitle lang={lang} selected="" onSelect={selectLobbyGame} />
+          </section>
+          <nav className="bottom-nav">
+            <button className="active" onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}><span>⌂</span><small>Нүүр</small></button>
+            <button onClick={() => joinSectionRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })}><span>⇥</span><small>Нэгдэх</small></button>
+            <button onClick={() => setShowSettings(true)}><span>⚙</span><small>Дэлгэрэнгүй</small></button>
+          </nav>
+          {showSettings && <LobbySettings lang={lang} setLang={setLang} name={name} setName={updateName} ot={ot} onClose={() => setShowSettings(false)} />}
         </div>
       </div>
     )
@@ -841,7 +856,7 @@ function OnlineRoom({ lang, setLang, onOffline }) {
   return (
     <div className="app online-app">
       <div className="screen setup room-screen">
-        <div className="room-topbar"><button className="icon-back" onClick={leaveRoom}>←</button><span>{ot.onlineRoom}</span><span className="live-dot">LIVE</span></div>
+        <div className="room-topbar"><button className="icon-back" onClick={leaveRoom}>←</button><div><small>{lang === 'mn' ? 'Хүлээлгийн өрөө' : 'Waiting room'}</small><strong>{gameLabel(room.gameType)}</strong></div><span className="live-dot">ONLINE</span></div>
         <div className="room-head">
           <div className="room-code-wrap"><small>{ot.roomCode}</small><span className="room-code">{room.code}</span></div>
           <div className="room-actions">
@@ -849,9 +864,10 @@ function OnlineRoom({ lang, setLang, onOffline }) {
             <button className="mini-btn" onClick={() => navigator.clipboard?.writeText(room.code)}>{ot.copy}</button>
           </div>
         </div>
-        <div className="player-strip">
+        <div className="waiting-player-list">
+          <div className="waiting-section-head"><strong>{lang === 'mn' ? 'Тоглогчид' : 'Players'}</strong><span>{room.players.length}</span></div>
           {room.players.map((player) => (
-            <span key={player.id} className={`player-chip ${player.id === playerId ? 'me' : ''}`}>{player.name}</span>
+            <div key={player.id} className={`waiting-player ${player.id === playerId ? 'me' : ''}`}><span className="player-avatar">{player.name.charAt(0).toUpperCase()}</span><strong>{player.name}</strong>{player.id === room.hostId && <small>HOST</small>}<b>✓</b></div>
           ))}
         </div>
         <div className="active-game-bar"><span className="game-icon small">{gameIcon(room.gameType)}</span><strong>{gameLabel(room.gameType)}</strong>{isHost && <button className="mini-btn" disabled={!canSwitchGame()} onClick={() => setShowGamePicker((value) => !value)}>{showGamePicker ? (lang === 'mn' ? 'Болих' : 'Cancel') : (lang === 'mn' ? 'Тоглоом солих' : 'Change game')}</button>}</div>
@@ -863,6 +879,49 @@ function OnlineRoom({ lang, setLang, onOffline }) {
         <ExtendedOnlineGame room={room} playerId={playerId} action={action} lang={lang} />
         {error && <p className="error">{error}</p>}
       </div>
+    </div>
+  )
+}
+
+function SejigLogo() {
+  return (
+    <svg className="sejig-logo" viewBox="0 0 40 40" aria-hidden="true">
+      <defs><radialGradient id="sejig-moon" cx="40%" cy="40%" r="60%"><stop offset="0%" stopColor="#7C3AED" /><stop offset="100%" stopColor="#4C1D95" /></radialGradient></defs>
+      <circle cx="20" cy="20" r="16" fill="url(#sejig-moon)" />
+      <circle cx="27" cy="15" r="11" fill="#0C1428" />
+      <ellipse cx="14" cy="23" rx="5" ry="3.5" fill="rgba(167,139,250,.18)" />
+      <ellipse cx="14" cy="23" rx="3" ry="2.2" fill="#A78BFA" />
+      <circle cx="14" cy="23" r="1.3" fill="#2D1B69" />
+      <circle cx="14.7" cy="22.3" r=".5" fill="white" />
+      <circle cx="30" cy="10" r="1" fill="#A78BFA" />
+    </svg>
+  )
+}
+
+function LobbySettings({ lang, setLang, name, setName, ot, onClose }) {
+  return (
+    <div className="settings-overlay" role="presentation" onMouseDown={(event) => { if (event.target === event.currentTarget) onClose() }}>
+      <section className="settings-sheet" role="dialog" aria-modal="true" aria-label="Settings">
+        <div className="settings-head">
+          <div><small>{lang === 'mn' ? 'ТОХИРГОО' : 'SETTINGS'}</small><h2>{lang === 'mn' ? 'Таны мэдээлэл' : 'Your preferences'}</h2></div>
+          <button className="settings-close" aria-label="Close" onClick={onClose}>×</button>
+        </div>
+        <label className="field">
+          <span className="field-label">{ot.yourName}</span>
+          <input value={name} maxLength={24} placeholder={ot.playerName} onChange={(event) => setName(event.target.value)} autoFocus />
+        </label>
+        <div className="settings-language">
+          <span className="field-label">{lang === 'mn' ? 'ХЭЛ' : 'LANGUAGE'}</span>
+          <div className="lang-pills">
+            {LANGS.map((item) => (
+              <button key={item.code} className={`pill ${lang === item.code ? 'active' : ''}`} onClick={() => setLang(item.code)}>
+                <span className="flag">{item.flag}</span> {item.label}
+              </button>
+            ))}
+          </div>
+        </div>
+        <button className="primary big" onClick={onClose}>{lang === 'mn' ? 'Хадгалах' : 'Save'}</button>
+      </section>
     </div>
   )
 }

@@ -1,0 +1,161 @@
+export type GameMode = 'online' | 'offline' | 'both'
+
+export interface Game {
+  id: string
+  title: string
+  players: string
+  duration: string
+  difficulty: string
+  difficultyNum: number
+  description: string
+  mode: GameMode
+  color: string
+  bg: string
+  icon: string
+  category: 'online' | 'offline' | 'party' | 'strategy'
+}
+
+export const GAMES: Game[] = [
+  {
+    id: 'imposter-online',
+    title: 'Импостер Онлайн',
+    players: '4–15',
+    duration: '20–40 мин',
+    difficulty: 'Хялбар',
+    difficultyNum: 1,
+    description: 'Тус тусдаа утсаараа тоглож, хэн импостер болохыг ол',
+    mode: 'online',
+    color: '#818CF8',
+    bg: 'linear-gradient(135deg, #1e1b4b 0%, #0c1028 100%)',
+    icon: '👁',
+    category: 'online',
+  },
+  {
+    id: 'imposter-offline',
+    title: 'Импостер Офлайн',
+    players: '3–10',
+    duration: '15–30 мин',
+    difficulty: 'Хялбар',
+    difficultyNum: 1,
+    description: 'Нэг утсыг дамжуулж тоглох — офлайн найзуудтайгаа',
+    mode: 'offline',
+    color: '#34D399',
+    bg: 'linear-gradient(135deg, #064e3b 0%, #0a1628 100%)',
+    icon: '📱',
+    category: 'offline',
+  },
+  {
+    id: 'mafia',
+    title: 'Мафиа',
+    players: '6–20',
+    duration: '30–60 мин',
+    difficulty: 'Дунд',
+    difficultyNum: 2,
+    description: 'Хот мафиагийн гарт. Иргэд хэнийг итгэхээ мэдэхгүй байна',
+    mode: 'both',
+    color: '#F87171',
+    bg: 'linear-gradient(135deg, #450a0a 0%, #0f0a1e 100%)',
+    icon: '🎭',
+    category: 'party',
+  },
+  {
+    id: 'avalon',
+    title: 'Авалон',
+    players: '5–10',
+    duration: '45–60 мин',
+    difficulty: 'Хэцүү',
+    difficultyNum: 3,
+    description: 'Артурын шүүхэд сайн ба муу хоёр тал тулалдана',
+    mode: 'both',
+    color: '#FCD34D',
+    bg: 'linear-gradient(135deg, #451a03 0%, #0f0d1e 100%)',
+    icon: '⚔️',
+    category: 'strategy',
+  },
+  {
+    id: 'secret-hitler',
+    title: 'Нууц Гитлер',
+    players: '5–10',
+    duration: '45–75 мин',
+    difficulty: 'Хэцүү',
+    difficultyNum: 3,
+    description: 'Фашистуудаас хамгаалагтун — эсвэл тэдэнтэй нийлэгтун',
+    mode: 'both',
+    color: '#FB923C',
+    bg: 'linear-gradient(135deg, #431407 0%, #0f100a 100%)',
+    icon: '🗳️',
+    category: 'strategy',
+  },
+  {
+    id: 'wink-murder',
+    title: 'Нүдийн Алагч',
+    players: '6–20',
+    duration: '10–20 мин',
+    difficulty: 'Хялбар',
+    difficultyNum: 1,
+    description: 'Нүдээ анивчуулан хүмүүсийг "ал" — хэн хардагийг ол',
+    mode: 'offline',
+    color: '#E879F9',
+    bg: 'linear-gradient(135deg, #4a044e 0%, #0f0a1e 100%)',
+    icon: '😉',
+    category: 'party',
+  },
+  {
+    id: 'two-rooms',
+    title: 'Хоёр Өрөө',
+    players: '10–30',
+    duration: '20–30 мин',
+    difficulty: 'Дунд',
+    difficultyNum: 2,
+    description: 'Хоёр өрөөнд хуваагдаж, ерөнхийлөгч, бөмбөг хоёрыг нэгтгэ',
+    mode: 'offline',
+    color: '#38BDF8',
+    bg: 'linear-gradient(135deg, #082f49 0%, #0a1020 100%)',
+    icon: '🏠',
+    category: 'party',
+  },
+  {
+    id: 'bang',
+    title: 'Банг!',
+    players: '4–7',
+    duration: '20–40 мин',
+    difficulty: 'Дунд',
+    difficultyNum: 2,
+    description: 'Дэлхийн баруун карт тоглоом — шерифийг хамгаал',
+    mode: 'offline',
+    color: '#F59E0B',
+    bg: 'linear-gradient(135deg, #451a03 0%, #0f0c18 100%)',
+    icon: '🔫',
+    category: 'party',
+  },
+  {
+    id: 'number-guess',
+    title: 'Тоо Тааварлах',
+    players: '2–8',
+    duration: '5–15 мин',
+    difficulty: 'Хялбар',
+    difficultyNum: 1,
+    description: 'Хэн хамгийн ойр тоог тааварлах вэ? Хурдан, хөгжилтэй',
+    mode: 'both',
+    color: '#22D3EE',
+    bg: 'linear-gradient(135deg, #083344 0%, #080d1a 100%)',
+    icon: '🔢',
+    category: 'party',
+  },
+  {
+    id: 'plane-battle',
+    title: 'Онгоцны Тулаан',
+    players: '2–4',
+    duration: '10–20 мин',
+    difficulty: 'Хялбар',
+    difficultyNum: 1,
+    description: 'Тэнгэрт онгоцоо нисгэж өрсөлдөгчөө устга',
+    mode: 'both',
+    color: '#60A5FA',
+    bg: 'linear-gradient(135deg, #1e3a5f 0%, #07101f 100%)',
+    icon: '✈️',
+    category: 'party',
+  },
+]
+
+export type Category = 'all' | 'online' | 'offline' | 'party' | 'strategy'
